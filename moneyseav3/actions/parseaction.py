@@ -1,9 +1,6 @@
 
-from moneysea.actions.baseaction import BaseAction
-from moneysea.globals import Globals
-from moneysea.stock.stock import Stock
-from moneysea.addings.addingfilter import AddingFilter
-from moneysea.addings.defaultadding import DefaultAdding
+from moneyseav3.actions.baseaction import BaseAction
+from moneyseav3.globals import Globals
 
 class ParseAction(BaseAction):
     def __init__(self):

@@ -114,20 +114,24 @@ BaseSelect(prefilters[], props[], postfilters)
 ----------------------------------------------
             <fileparsers>
                 StockIdNameMappingFile
-----------------------------------------------------------------
+----------------------------------------------
             /inputs/
     /prices/*  /common/stock_id_name_map/*    
                                              
 
 3.3 Others
-. UpdateAction => <tools>        
-    to update prices or stock financial data in netease or stock financial data in tonghuasun
+                UpdateAction
+-------------------------------------------
+                  <tools>        
+
+    HistoryPrices       NeteaseData     TongHuaSunData    PredictReport
 
 3.4 Tests
 . TestAction => <tests>
 
 3.5 Support classes
 . Configs
+. <utils>/StockCommon
 
 
 

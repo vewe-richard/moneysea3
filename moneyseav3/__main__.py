@@ -20,7 +20,7 @@ class HelpAction(BaseAction):
     def description(self):
         return '''
 SYNOPSIS:
-    python moneyseav3 help [cmd]
+    python moneysea help [cmd]
 
 DESCRIPTIONS:
     show help information for the specific command
