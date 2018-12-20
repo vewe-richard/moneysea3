@@ -1,0 +1,33 @@
+#prices
+
+
+            Globals 
+
+                Stock
+                    ::price(date=None)  #return recent price if date is None. date = (year, month, day)
+
+   ._prices
+
+----------------------------------------------
+            <resources>
+    Prices
+        ::price(stockid, date)  #date = (year, month, day)
+
+        #private
+        ::_latestprices
+        ::_recentpricesdict = {date:prices, date:prices ...}
+
+        ::_historypricesdict = {stockid:prices, stockid:prices}
+
+        #private func
+        ::getrecentprices(date)
+----------------------------------------------
+            <fileparsers>
+    recentprices
+        ::listpricefiles()
+    historyprices
+        ::getprices(stockid)    #return a dict, {date:(price ...)}
+----------------------------------------------
+            /inputs/
+    /prices/recent/*
+    /prices/historyprices/*

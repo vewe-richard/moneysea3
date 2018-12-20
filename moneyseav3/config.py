@@ -18,6 +18,7 @@ class Config:
     CLASSFY_XML = "input/classfy/classfy.xml"
 
     PRICES_PATH = "input/prices/recent"
+    PRICES_PATH2 = "input/prices/historyprices/"
 
     #output
     OUTPUT = "output/"
