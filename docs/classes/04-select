@@ -1,0 +1,83 @@
+/properties/baseproperty
+
+BaseFilter:
+    :: run(Stock)       # return (True, None) or (False, "reason")
+    :: name()           # name of this filter
+
+
+# stock property caculate
+BaseProperty(BaseFilter):
+    :: run(Stock)       # return (True, property value) or (False, "reason")
+    :: selectratio()    # the ratio we use to select stocks per this property
+
+
+ListFilters:
+    :: __init__([XxxFilter(), YyyFilter() ... ])
+    :: pass()
+    :: fail()
+    :: run(liststocks)
+        for each Stock in liststocks
+            for each filter
+                rlt = filter.run(Stock)
+                if not rlt[0]:
+                    Stock.setfail(filter.name(), rlt[1])
+                    _fail.append(Stock)
+                    break
+                Stock.setval(filter.name(), rlt[1])
+            if Stock in _fail:
+                continue
+            _pass.append(Stock)
+
+# process list of stock property
+ListProperties(ListFilters):
+    :: __init__([XxxProperty(), YyyProperty() ... ])
+
+
+/select/baseselect
+# 以props排序，找出它们的前部交集
+#
+BaseSelect(prefilters, props, postfilters)
+# prefilters, props and postfilters are all list of objects of BasePropCal
+#
+run:
+    ass = Types.stocks() or Globals.liststocks()
+
+    prelf = ListFilters(prefilters)
+    prelf.run(ass)
+    pass = prelf.pass()
+
+    lp = ListProperties(props)
+    lp.run(pass)
+    pass2 = lp.pass()
+            
+    #sort
+    ads = dict()
+    for every prop
+        ll = ads[prop.name()] = []
+        for every Stock in pass2
+            if len(ll) == 0:
+                ll.append(Stock)
+            else:
+                for every Stock in ll as iStock
+                    if Stock.getval(prop.name()) > iStock.getval(prop.name()):
+                        ll.insert()
+                    else:
+                        ll.append(Stock)
+                
+. intersections
+    for every prop
+        end = len(ads[prop.name()]) * prop.selectratio()
+        half_ads[prop.name()] = ads[prop.name()][0:end]
+
+    first = half_ads[first prop name()]
+    copy all Stocks in first to overlap
+
+    for s in first:
+        for every prop:
+            if not s in half_ads[prop name]
+                overlap.remove(s)
+                break
+
+. post filters
+    Using ListFilters()
+

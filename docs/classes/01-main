@@ -1,0 +1,138 @@
+1. 概览
+
+                actions
+-------------------------------------------
+    
+
+    select algorithms, statistics, etc
+
+
+-------------------------------------------
+        Globals (single instance)
+
+                |  |  |
+
+                |  |  |
+               resources 
+
+              file parsers
+
+                inputs
+
+
+基本框架如上图
+
+. 对于单纯的信息显示，actions 直接调用globals获得resources, 进行显示
+. 对于算法相关的功能，actions 调用相关的算法类，算法类调用 Globals访问相应的resources
+
+
+2. 详细描述
+2.1 types
+列出分类和显示分类下的股票信息, typesaction直接访问Globals获取types类
+详细见 classes/types
+
+2.2 parse
+如果只是显示股票的基本信息，则直接 parseaction 访问 Globals获取 stock类
+如果还要显示它在指定算法下的评价，则和select类打交道
+
+2.3 update
+update action 直接调用update下面的类
+
+2.4 holded
+
+2.5 select
+select action调用select下面的算法类(Select类).
+BaseSelect(prefilters[], props[], postfilters)
+
+详细见 select-classes
+
+2.6 test
+2.6.1 statistics
+
+2.6.2 
+
+3. Classes Map
+3.1 Map
+
+<xxxxx> --- package xxxxx
+
+                                           MoneySeav3
+
+---------------------------------------------------------------------------------------------------------
+                                          <actions>
+  TypesAction   HoldedAction             ParseAction       SelectAction
+---------------------------------------------------------------------------------------------------------
+    
+
+                                                           algorithms
+                                                                <select>
+                                                                    BaseSelect ... ...
+
+                                                                <properties>
+                                                                    BaseFilter  BaseProperty ... ...
+                                                                    ListFilters ListProperties
+                                                                        #to return list of stocks match filters
+                                                                        #to return list of stocks with prop set
+                                            -------------------------------------------------------------
+
+                                Globals (single instance)
+
+   ::types()    ::holdedrecords()        ::getstock()           ::stocks()
+----------------------------------------------------------------------------------------------------------
+                                     <resources>
+
+    Types       HoldedRecords            Stock
+                OneHoldedRecord            FaData
+
+----------------------------------------------------------------------------------------------------------
+                                     <fileparsers>
+
+<classfy>       OneHoldedRecordFile        FFBase
+    ClassfyXml                             FFNetease
+    SwXml                                  FF10jqka
+    UserXml
+    FileTypeSw
+    FileTypeUser
+
+----------------------------------------------------------------------------------------------------------
+                                       /inputs/
+
+/classfy/classfy.xml /holded/*          /stocks/netease/* 
+/classfy/sw.xml                         /stocks/10jqka/*
+/classfy/user.xml
+/classfy/sw/*
+/classfy/user/*
+
+
+3.2 More
+
+            Globals 
+   ._prices     ._stockidnamemapping
+----------------------------------------------
+            <resources>
+    Prices      StockIdNameMapping
+----------------------------------------------
+            <fileparsers>
+                StockIdNameMappingFile
+----------------------------------------------------------------
+            /inputs/
+    /prices/*  /common/stock_id_name_map/*    
+                                             
+
+3.3 Others
+. UpdateAction => <tools>        
+    to update prices or stock financial data in netease or stock financial data in tonghuasun
+
+3.4 Tests
+. TestAction => <tests>
+
+3.5 Support classes
+. Configs
+
+
+
+
+
+
+
+

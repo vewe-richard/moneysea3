@@ -1,0 +1,79 @@
+/globals.py
+    /resources/
+        /fileparsers/
+
+Globals:
+    :: __init__(pricespath = None)
+    # stock resources
+    :: stocks()          # return dict of {stockid:Stocks}. Financial data may not be ready.
+    :: liststocks()
+    :: getstock(stockid) # return Stock
+
+    # global resources
+    :: holdedrecords()   # return HoldedRecords
+    :: types()           # return Types
+
+    # global settings
+    :: baseline()        # return (year,season)
+    :: setbaseline()     # change baseline = (year, season)
+
+    #private
+    :: _prices = None
+    :: _stockidnamemapping
+    :: _stocks #dict of {stockid:Stock}
+    :; _liststocks
+
+
+
+#. 需要支持baseline financial, 以及baseline price
+Stock:
+    :: __init__(gbls)
+    :: name()
+    :: id()
+    :: price()
+    :: swtype() #申万二级
+    :: n()
+    :: p()
+
+    :: setfail(name, reason)
+    :: getfail(name, reason)
+    :: getfails()
+    :: resetfails()
+    :: setval(name, val)
+    :: getval(name)
+    :; resetvals()
+
+    :: fd()     #Setup financial data at the first call
+
+    FaData:     #see doc/design/classes/fadata
+        :: 
+
+
+HoldedRecords:
+    :: __init__(gbls)
+    :: all()
+    :: latest()  # return OneHoldedRecord
+    :: get(index) # return OneHoldedRecord
+
+
+Types:  #see doc/design/classes/types
+   :: classfyings()                                             #list of all classfying methods
+   :: mtypes(classfying)                                        #list of main types of classfying method
+   :: subtypes(classfying, mtype)                               #list of subtypes of classfying/mtype
+   :: stocks(classfying, mtype, subtype)                        #list of stocks of classfying/mtype/subtype
+   :: typeproperty(classfying, mtype, subtype)                  #type property of classfying/mtype/subtype, if subtype is None, return type property of classfying/mtype
+   :: swtype(stockid)                                           #return (mtype, subtype) of sw of this stock
+
+Prices:
+
+StockIdNameMapping:
+
+
+
+
+
+
+
+
+
+

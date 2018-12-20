@@ -1,0 +1,33 @@
+class Config:
+    #-------------------------- File path --------------------------
+    #input
+    INPUT_DIR = "input"
+
+    STOCK_ID_NAME_MAP_SHA = "input/common/stock_id_name_map/sha"
+    STOCK_ID_NAME_MAP_SZ = "input/common/stock_id_name_map/sz"
+    STOCK_ID_NAME_MAP_OPEN = "input/common/stock_id_name_map/open"
+
+    CURRENT_HOLDED_PATH = "input/holded"
+
+    STOCKS_PATH = "input/stocks"
+    STOCKS_PATH2 = "input/stocks-netease"
+
+    CLASSFY_PATH = "input/classfy"
+    CLASSFY_XML = "input/classfy/classfy.xml"
+
+    PRICES_PATH = "input/prices"
+
+    #output
+    OUTPUT = "output/"
+
+    #minimal profit request
+    MINIMAL_PROFIT = 1000000
+
+    # should be moved to default.xml
+    N = 5
+    P = 0.08
+
+    # max years to parsing financial data
+    MAX_YEARS = 10
+    def __init__(self):
+        pass

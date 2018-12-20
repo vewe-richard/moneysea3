@@ -1,0 +1,41 @@
+/resources/
+FaData:
+    :: __init__(stockid)        # consturct from FFNetease, if not suitable, consturct from 10jqka
+    :: keys()           # keys of report dict
+    :: yearreport(year) # return dict
+    :: report(year, season)
+    :: latest()         # (year, season)
+    :: oldest()         # (year, season)
+    :: all()            # list of all valid reports
+    :: latestreport()   # latest report
+    :: oldestreport()   # oldest report
+    -------- test -----
+    :: compare() #compare data between netease and 10jqka, after construct FaData from FFNetease, change config path, and construct again, which will cause consturct from 10jqka
+
+
+
+
+/fileparsers/
+FFBase:
+    :: allreports()
+    :: getindex(year, season):
+    :: oldestindex()
+    :: latestindex()
+
+    --- protected ---
+    :: year_season(date)
+    :: parseadding(text)
+    :: parsemoney(text)
+
+    --- private ---
+    :: _data
+    :: _start
+    :: _end
+    :: _oldest, _latest
+
+FFNetease(FFBase)
+
+FF10jqka(FFBase)
+
+
+

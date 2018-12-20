@@ -1,0 +1,46 @@
+Types()
+
+###################################### input ###################################### 
+# input/classfy/classfy.xml
+<xml>
+    <classfy name="sw" cname="申万二级" filepath="input/classfy/sw.xml"/>       #申万二级分类体系
+    <classfy name="user" cname="用户定义" filepath="input/classfy/user.xml"/>   #用户定义分类
+</xml>
+
+# 申万二级分类体系      input/classfy/sw.xml
+<xml>
+    <type name="electric" cname="电气"/>
+       <subtype name="power" cname="电源" filetype="sw" filepath="input/classfy/sw/power"/>
+       <subtype name="auto" cname="自动化" filetype="sw" filepath="input/classfy/sw/auto"/>
+    </type>
+</xml>
+
+# 用户定义分类          input/classfy/user.xml
+<xml>
+   <type name="champion" cname="龙头" filetype="user" filepath="input/classfy/user/champion"/>
+</xml>
+
+#注：对于以下描述，type没有subtype
+    . 直接在type里面指明了filetype和filepath
+    . type包含的subtype 没有name
+ 
+##################################### Interface ###################################
+# interface
+Types:
+   :: classfyings()                                             #list of all classfying methods
+   :: mtypes(classfying)                                        #list of main types of classfying method
+   :: subtypes(classfying, mtype)                               #list of subtypes of classfying/mtype
+
+   :: stocks(classfying, mtype, subtype)                        #list of stocks of classfying/mtype/subtype
+   :: typeproperty(classfying, mtype, subtype)                  #type property of classfying/mtype/subtype, if subtype is None, return type property of classfying/mtype
+   :: swtype(stockid)                                           #return (mtype, subtype) of sw of this stock
+
+/resources/types.py
+
+/fileparsers/classfy/
+    classfyxml.py
+    swxml.py
+    userxml.py
+    filetypesw.py
+    filetypeuser.py
+

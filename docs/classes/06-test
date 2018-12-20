@@ -1,0 +1,45 @@
+/test/
+
+
+v2::StasticsFinancials
+    valid:
+
+        Globals.stocks([XxxxFilter])
+        Globals.filtersstat()
+
+        XxxxFilter(BaseFilter)
+            __init__(Stock)
+                ::run()
+                    get fd
+                    get baseline from Globals
+                    filter as v2::DefaultAdding
+
+    continuous:
+        Globals.stocks([XxxxFilter, YyyyFilter])
+        Globals.filterstat()
+
+
+        YyyyFilter(BaseFilter)
+            __init__(Stock)
+                :: run()
+                    get fd
+                    get baseline from Globals
+                    caculate value of adding
+                    ...
+
+    adding:
+        Globals.stocks([XxxxAdding])
+        for every Stock:
+            access adding using Stock.fd().addings["name"]
+
+    delta:
+        Similar as adding
+
+
+v2::AverageSalesWay
+    use "profit_adding" "profit2_adding" "sales_adding" as selection terms
+    BaseSelect(prefilters, addings, postfilters)
+
+v2::WayIndustryAdding
+    define TypeFilter(BaseFilter)
+            __init__((classfy, mtype, subtype))

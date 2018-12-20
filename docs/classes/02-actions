@@ -1,0 +1,63 @@
+################################################################ Overview ##############################################################
+                MoneySea
+
+                actions
+-------------------------------------------
+    
+
+    select algorithms, statistics, etc
+
+
+-------------------------------------------
+        Globals (single instance)
+
+                |  |  |
+
+                |  |  |
+               resources 
+
+              file parsers
+
+                inputs
+
+
+
+################################################################ Actions ##############################################################
+MoneySea        # Main entry, call corresponding action and pass the arguments and options; construct help message
+    ::run()
+
+MoneySea (__main__.py)      
+    ::run()
+        ParseAction, SelectAction, TypeAction, ...
+
+actions.BaseAction
+        ::cmd()
+        ::summary()
+        ::description()
+        ::run()
+
+actions.TypeAction(BaseAction)
+         ::run()
+            utils.Types
+
+actions.UpdateAction(BaseAction)
+            utils.Prices
+
+actions.ParseAction(BaseAction)
+            stock.Stock
+
+actions.HoldedAction(BaseAction)
+
+actions.TestAction(BaseAction)
+
+
+
+
+
+
+
+
+
+
+
+
