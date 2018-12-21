@@ -39,7 +39,7 @@ class Prices:
             hp = HistoryPrices().getprices(stockid)
             key = "%02d-%02d-%02d"%date
             items = hp[key]
-            return items[0]
+            return float(items[0])
         except Exception as e:
             pass
         return p

@@ -1,5 +1,6 @@
 
 from moneyseav3.actions.baseaction import BaseAction
+from moneyseav3.tests.verifyaction import VerifyAction
 
 class ShowAction(BaseAction):
     def cmd(self):
@@ -13,11 +14,17 @@ class ShowAction(BaseAction):
 
     def run(self, args, opts):
         ta = TestAction()
+        try:
+            if "--verbose" in opts[0]:
+                ta.details()
+                return
+        except:
+            pass
         ta.usage()
 
 class TestAction(BaseAction):
     def __init__(self):
-        self._actions = [ShowAction]
+        self._actions = [VerifyAction, ShowAction]
         pass
 
     def cmd(self):
@@ -30,7 +37,7 @@ class TestAction(BaseAction):
     def description(self):
         return '''
 SYNOPSIS: 
-    python moneysea test command
+    python moneysea [--verbose] test command
 
 DESCRIPTION:
     test command
@@ -38,6 +45,8 @@ DESCRIPTION:
 OPTIONS:
     <cmd>
         test command, such as show to show all test command, default is show
+    --verbose
+        show all test commands
 '''
 
     def getaction(self, cmd):
@@ -52,6 +61,19 @@ OPTIONS:
         for action in self._actions:
             obj = action()
             print "\t" + obj.cmd() + "\t\t" + obj.summary()
+
+    def details(self):
+        print "Usage: python moneysea test command [<args>]"
+        for action in self._actions:
+            obj = action()
+            print "\t" + obj.cmd()
+            try:
+                ll = obj.actionsdes()
+                for item in ll:
+                    print "\t\t", item
+            except:
+                pass
+            print ""
 
 
     def run(self, args, opts):

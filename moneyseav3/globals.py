@@ -1,4 +1,6 @@
 from moneyseav3.resources.stockidnamemapping import StockIdNameMapping
+from moneyseav3.resources.stock import Stock
+from moneyseav3.resources.prices import Prices
 
 
 class Globals:
@@ -9,7 +11,12 @@ class Globals:
             raise ValueError("An instantiation already exists!")
         self._stockidnamemapping = StockIdNameMapping()
         sim = self._stockidnamemapping.getmap()
-        self._stocks = sim
+
+        self._stocks = {}
+        for sid in sim:
+            self._stocks[sid] = Stock(self, sid)
+
+        self._prices = Prices()
 
 
     @classmethod
@@ -23,6 +30,10 @@ class Globals:
     def stocks(self):
         return self._stocks
 
+
+    # for Stock class usage
+    def price(self, sid, date = None):
+        return self._prices.price(sid, date)
 
 
 if __name__ == "__main__":

@@ -127,7 +127,22 @@ BaseSelect(prefilters[], props[], postfilters)
     HistoryPrices       NeteaseData     TongHuaSunData    PredictReport
 
 3.4 Tests
-. TestAction => <tests>
+                               TestAction
+--------------------------------------------------------------------------------------------------------
+                                <tests>
+                            BaseTestAction
+    VerifyAction
+
+    <verify>            <>
+-------------------------------------------------------------------------------------------------------
+    Prices
+
+
+add a test:
+    . define an action group by inherit from BaseTestAction, and add this class into TestAction::__init__  
+    . define an action by inherit from BaseAction, and add this class to the group action class::__init__
+        --- refer  /tests/verifyaction.py
+                   /tests/verify/prices.py
 
 3.5 Support classes
 . Configs
