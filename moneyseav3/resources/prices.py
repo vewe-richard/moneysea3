@@ -36,13 +36,47 @@ class Prices:
 
         #try find price from historyprices
         try:
-            hp = HistoryPrices().getprices(stockid)
+            hp = self.gethistoryprices(stockid)
             key = "%02d-%02d-%02d"%date
-            items = hp[key]
+            items = hp.getprices()[key]
             return float(items[0])
         except Exception as e:
             pass
         return p
+
+    def historyprice(self, stockid, date):  #date = (year, month, day)
+        #try find price from historyprices
+        try:
+            hp = self.gethistoryprices(stockid)
+            key = "%02d-%02d-%02d"%date
+            items = hp.getprices()[key]
+            return float(items[0])
+        except Exception as e:
+            return None
+
+    def historymarketvalue(self, stockid, date):
+        try:
+            hp = self.gethistoryprices(stockid)
+            key = "%02d-%02d-%02d"%date
+            items = hp.getprices()[key]
+            return float(items[1])
+        except Exception as e:
+            return None
+
+    def historyrange(self, stockid):
+        try:
+            hp = self.gethistoryprices(stockid)
+            return hp.range()
+        except Exception as e:
+            return None
+
+    def gethistoryprices(self, stockid):
+        try:
+            hp = self._historypricesdict[stockid]
+        except:
+            hp = HistoryPrices(stockid)
+            self._historypricesdict[stockid] = hp
+        return hp
 
     def getrecentprices(self, date):
         rp = self._recentpricesdict[date]
@@ -59,5 +93,7 @@ class Prices:
 if __name__ == "__main__":
     ps = Prices()
     print ps.price("300230", (2018, 11, 28))
+    print ps.marketvalue("300230", (2018, 11, 28))
+    print ps.historyrange("300230")
 
     pass

@@ -35,6 +35,13 @@ class Globals:
     def price(self, sid, date = None):
         return self._prices.price(sid, date)
 
+    def historyprice(self, sid, date):
+        return self._prices.historyprice(sid, date)
+    def historymarketvalue(self, sid, date):
+        return self._prices.historymarketvalue(sid, date)
+    def historypricesrange(self, sid):
+        return self._prices.historyrange(sid)
+
 
 if __name__ == "__main__":
     pass

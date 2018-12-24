@@ -12,6 +12,9 @@
             <resources>
     Prices
         ::price(stockid, date)  #date = (year, month, day)
+        #history
+        ::marketvalue(stockid, date) #date = (year, month, day)
+        ::historyrange(stockid)        #(startdate, enddate)
 
         #private
         ::_latestprices
@@ -27,6 +30,7 @@
         ::listpricefiles()
     historyprices
         ::getprices(stockid)    #return a dict, {date:(price ...)}
+        ::range()               #return range of history data
 ----------------------------------------------
             /inputs/
     /prices/recent/*
