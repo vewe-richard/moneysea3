@@ -76,7 +76,7 @@ class HistoryPricesShare:
                 continue
             
             if p1 == None:
-                pricesshare[str(dt)] = (p, "1")
+                pricesshare[str(dt)] = (p, 1, mv/10000)
             else:
                 pricesshare[str(dt)] = self.caculate(S, dt, p1, mv1, p, mv)
             p1 = p
@@ -105,27 +105,27 @@ class HistoryPricesShare:
 
         if delta < 0.00001:     #share is not changed
             self._stats["same"] += 1
-            return (p, 1)
+            return (p, 1, mv/10000)
 
         if delta < 0.05:
             self._stats["minidelta"] += 1
-            return (p, 1)
+            return (p, 1, mv/10000)
 
         if abs(prange) < 0.20:  #allow change between +-20%
             self._stats["sendingshare"] += 1
 #            tmp = delta - (1.0 * int(delta * 10) / 10)
 #            if tmp < 0.001:
 #                print delta, prange
-            return (p, (1 + delta))
+            return (p, (1 + delta), mv/10000)
 
         if realprange < 0.12: #增资扩股？
             self._stats["addshare"] += 1
-            return (p, 1)
+            return (p, 1, mv/10000)
 
 #        print "left: ", S.id(), str(dt),  delta, prange, realprange
         self._stats["left"] += 1
 
-        return (p, 0)
+        return (p, 0, 0)
 
 
     def date(self, dt):

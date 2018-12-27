@@ -1,5 +1,6 @@
 from moneyseav3.globals import Globals
 from moneyseav3.tests.basetestunit import BaseTestUnit
+import datetime, time
 
 class PricesShareVerify(BaseTestUnit):
     PRICE_ZERO = 0.00001
@@ -47,3 +48,51 @@ class PricesShareVerify(BaseTestUnit):
             return True
 
         return False
+
+    def run1(self, args, opts):
+        gbls = Globals.get_instance()
+        sid = "300230"
+        S = gbls.stocks()[sid]
+
+        startstr = "2010-01-01"
+        endstr = "2018-11-30"
+        items = startstr.split("-")
+        try:
+            startdate = datetime.date(int(items[0]), int(items[1]), int(items[2]))
+        except:
+            #without correct history prices
+            return
+        tmptime = time.mktime(startdate.timetuple())
+
+        while True:
+            dt = datetime.date.fromtimestamp(tmptime)
+            if str(dt) > endstr:
+                break
+
+            p = S.historyprice(self.date(dt))
+            ps = S.historypricesshare(self.date(dt))
+            if (p == None or p < 0.001) and ps == None:
+                tmptime += (3600*24)
+                continue
+
+            if p == None or ps == None:
+                print "Warning: not match", p, ps
+                tmptime += (3600*24)
+                continue
+
+            delta = (ps[0] - p)/p
+            if delta < 0.00001:
+                tmptime += (3600*24)
+                continue
+            print "Warning: mismatch"
+
+            tmptime += (3600*24)
+
+    def date(self, dt):
+        return (dt.year, dt.month, dt.day)
+
+
+
+
+
+
