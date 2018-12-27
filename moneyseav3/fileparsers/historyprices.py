@@ -24,7 +24,7 @@ class HistoryPrices:
                         start = vals[0]
                     if vals[0] > end:
                         end = vals[0]
-        except:
+        except Exception as e:
             pass
         self._mydict = mydict
         self._range = (start, end)

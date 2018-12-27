@@ -2,6 +2,28 @@
 from moneyseav3.actions.baseaction import BaseAction
 from moneyseav3.tests.verifyaction import VerifyAction
 
+class TestAuto(BaseAction):
+    def cmd(self):
+        return "auto"
+
+    def summary(self):
+        return "auto run all test suits"
+
+    def run(self, args, opts):
+        from moneyseav3.tests.verify.prices import PricesVerify
+        allv = [PricesVerify]
+
+        results = {}
+        for c in allv:
+            obj = c()
+            obj.autorun()
+            results[obj.cmd()] = obj.result()
+
+        print ""
+        print "Auto Tests results:"
+        for r in results:
+            print "\t", r, ":", results[r]
+
 class ShowAction(BaseAction):
     def cmd(self):
         return "show"
@@ -24,7 +46,7 @@ class ShowAction(BaseAction):
 
 class TestAction(BaseAction):
     def __init__(self):
-        self._actions = [VerifyAction, ShowAction]
+        self._actions = [TestAuto, VerifyAction, ShowAction]
         pass
 
     def cmd(self):

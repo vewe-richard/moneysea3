@@ -1,0 +1,24 @@
+1. Verifying
+1.1 prices
+比较 recent price and history price
+Recent Price下的其实是前一天的价格
+因此比较 20181130(Recent Price)和20181129（History Price)
+
+1.2 total shares
+. 如果总市值不变，则参考总股数的变更变更手中的股数 ---- sending share
+  假设理想的价格 ip2, 满足p1*T1 = ip2*T2                   #市值不变
+
+  p1*T1 = ip2 * T1(1 + delta)
+  ip2 = p1 / (1 + delta)
+
+  range = (p2 - ip2)/ip2
+  if abs(range) < 1.0: 
+    认为价格随着股价发生了变更
+
+
+
+. 对比financial data 之 净利润/每股收益       
+
+
+
+

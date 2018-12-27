@@ -135,13 +135,14 @@ BaseSelect(prefilters[], props[], postfilters)
 
     <verify>            <>
 -------------------------------------------------------------------------------------------------------
+        #note: below classes inherit from BaseTestUnit, provide result() and autorun() method for "test auto" usage
     Prices
     TotalShares
 
 
 add a test:
     . define an action group by inherit from BaseTestAction, and add this class into TestAction::__init__  
-    . define an action by inherit from BaseAction, and add this class to the group action class::__init__
+    . define an action by inherit from BaseTestUnit, and add this class to the group action class::__init__
         --- refer  /tests/verifyaction.py
                    /tests/verify/prices.py
 
