@@ -1,6 +1,7 @@
 
 from moneyseav3.actions.baseaction import BaseAction
 from moneyseav3.tools.historyprices import HistoryPrices
+from moneyseav3.tools.historypricesshare import HistoryPricesShare
 from moneyseav3.tools.prices import Prices
 
 class UpdateAction(BaseAction):
@@ -30,6 +31,8 @@ COMMAND:
         update stock predict report
     historyprices
         download history prices
+    historypricesshare
+        change historyprices to prices and share change
 '''
 
     def usage(self):
@@ -46,6 +49,9 @@ COMMAND:
         elif args[0] == "prices":
             p = Prices()
             p.run()
+        elif args[0] == "historypricesshare":
+            hps = HistoryPricesShare()
+            hps.run()
         else:
             print "Unknown update command:" + args[0]
             self.usage()

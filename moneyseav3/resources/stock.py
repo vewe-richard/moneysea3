@@ -21,4 +21,8 @@ class Stock:
     def historypricesrange(self):
         return self._gbls.historypricesrange(self._sid)
 
+    # return price, and share change on this date
+    def historypricesshare(self, date):
+        return self._gbls.historypricesshare(self._sid, date)
+
 

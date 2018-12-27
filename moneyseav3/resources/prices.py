@@ -9,6 +9,7 @@ class Prices:
         self._latestdate = "19000101"
         self._recentpricesdict = {}
         self._historypricesdict = {}
+        self._historypricessharedict = {}
 
         rp = RecentPrices()
         for item in rp.listpricefiles():
@@ -89,6 +90,26 @@ class Prices:
         filepath = Config.PRICES_PATH + "/" + date + "-" + rp
         p = json.load(open(filepath))
         return p
+
+    def historypricesshare(self, sid, date):
+        key = "%02d-%02d-%02d"%date
+        try:
+            hps = self._historypricessharedict[sid]
+        except:
+            try:
+                filepath = Config.PRICES_PATH3 + "/" + sid
+                hps = json.load(open(filepath))
+                self._historypricessharedict[sid] = hps
+            except:
+                hps = None
+                self._historypricessharedict[sid] = hps
+                return None
+            pass
+        
+        try:
+            return hps[key]
+        except:
+            return None
 
 if __name__ == "__main__":
     ps = Prices()

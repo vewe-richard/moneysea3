@@ -1,16 +1,12 @@
+
 # coding=utf-8
-from moneyseav3.tests.basetestunit import BaseTestUnit
 from moneyseav3.globals import Globals
+from moneyseav3.config import Config
 import datetime, time
+import json
 
-class TotalShares(BaseTestUnit):
-    def cmd(self):
-        return "totalshares"
-
-    def summary(self):
-        return "verify total shares"
-
-    def run(self, args, opts):
+class HistoryPricesShare:
+    def run(self):
         gbls = Globals.get_instance()
         count = 0
         self._stats = {"total":0, "nodata":0, "none": 0, "zero":0, "same": 0, "minidelta":0, "sendingshare":0, "addshare":0, "left": 0,}
@@ -18,7 +14,7 @@ class TotalShares(BaseTestUnit):
             S = gbls.stocks()[s]
             self.verifytotalshares(S)
             count += 1
-            if count > 10:
+            if count > 0:
                 pass
 #                break
 
@@ -61,6 +57,7 @@ class TotalShares(BaseTestUnit):
 
         p1 = None
         mv1 = None
+        pricesshare = {}
         while True:
             self._stats["total"] += 1
             dt = datetime.date.fromtimestamp(tmptime)
@@ -78,12 +75,20 @@ class TotalShares(BaseTestUnit):
                 self._stats["zero"] += 1
                 continue
             
-            if p1 != None:
-                self.caculate(S, dt, p1, mv1, p, mv)
+            if p1 == None:
+                pricesshare[str(dt)] = (p, "1")
+            else:
+                pricesshare[str(dt)] = self.caculate(S, dt, p1, mv1, p, mv)
             p1 = p
             mv1 = mv
 
             tmptime += (3600*24)
+
+        if len(pricesshare) == 0:
+            return
+
+        name = Config.PRICES_PATH3 + S.id()
+        json.dump(pricesshare, open(name,'w'))
         return
 
     def caculate(self, S, dt, p1, mv1, p, mv):
@@ -100,36 +105,29 @@ class TotalShares(BaseTestUnit):
 
         if delta < 0.00001:     #share is not changed
             self._stats["same"] += 1
-            return
+            return (p, 1)
 
         if delta < 0.05:
             self._stats["minidelta"] += 1
-            return
+            return (p, 1)
 
         if abs(prange) < 0.20:  #allow change between +-20%
             self._stats["sendingshare"] += 1
 #            tmp = delta - (1.0 * int(delta * 10) / 10)
 #            if tmp < 0.001:
 #                print delta, prange
-            return
+            return (p, (1 + delta))
 
         if realprange < 0.12: #增资扩股？
             self._stats["addshare"] += 1
-            return
+            return (p, 1)
 
 #        print "left: ", S.id(), str(dt),  delta, prange, realprange
         self._stats["left"] += 1
 
-        return
+        return (p, 0)
 
 
     def date(self, dt):
         return (dt.year, dt.month, dt.day)
-
-    def run2(self, args, opt):
-        ts = time.time()
-        dt = datetime.date.fromtimestamp(ts)
-        print dt
         pass
-
-

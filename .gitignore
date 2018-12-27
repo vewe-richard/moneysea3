@@ -105,3 +105,4 @@ venv.bak/
 *.swp
 /output
 /input/prices/historyprices
+/input/prices/historypricesshares

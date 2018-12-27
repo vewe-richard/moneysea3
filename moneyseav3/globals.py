@@ -41,6 +41,8 @@ class Globals:
         return self._prices.historymarketvalue(sid, date)
     def historypricesrange(self, sid):
         return self._prices.historyrange(sid)
+    def historypricesshare(self, sid, date):
+        return self._prices.historypricesshare(sid, date)
 
 
 if __name__ == "__main__":

@@ -19,6 +19,7 @@ class Config:
 
     PRICES_PATH = "input/prices/recent"
     PRICES_PATH2 = "input/prices/historyprices/"
+    PRICES_PATH3 = "input/prices/historypricesshares/"
 
     #output
     OUTPUT = "output/"
