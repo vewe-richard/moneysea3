@@ -25,4 +25,14 @@ class Stock:
     def historypricesshare(self, date):
         return self._gbls.historypricesshare(self._sid, date)
 
+    def gethpssimplelist(self):
+        return self._gbls.gethpssimplelist(self._sid)
 
+
+
+if __name__ == "__main__":
+    from moneyseav3.globals import Globals
+
+    gbls = Globals.get_instance()
+    s = Stock(gbls, "300230")
+    print s.id()

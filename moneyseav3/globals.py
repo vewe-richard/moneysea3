@@ -30,6 +30,9 @@ class Globals:
     def stocks(self):
         return self._stocks
 
+    def getstock(self, stockid):
+        return self._stocks[stockid]
+
 
     # for Stock class usage
     def price(self, sid, date = None):
@@ -43,6 +46,8 @@ class Globals:
         return self._prices.historyrange(sid)
     def historypricesshare(self, sid, date):
         return self._prices.historypricesshare(sid, date)
+    def gethpssimplelist(self, sid):
+        return self._prices.gethpssimplelist(sid)
 
 
 if __name__ == "__main__":

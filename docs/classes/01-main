@@ -65,8 +65,8 @@ BaseSelect(prefilters[], props[], postfilters)
     
 
                                                            algorithms
-                                                                <select>
-                                                                    BaseSelect ... ...
+     <invest>                                                   <select>
+        Invest                                                      BaseSelect ... ...
 
                                                                 <properties>
                                                                     BaseFilter  BaseProperty ... ...
