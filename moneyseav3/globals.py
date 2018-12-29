@@ -49,6 +49,9 @@ class Globals:
     def gethpssimplelist(self, sid):
         return self._prices.gethpssimplelist(sid)
 
+    def stockidnamemapping(self):
+        return self._stockidnamemapping
+
 
 if __name__ == "__main__":
     pass

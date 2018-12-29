@@ -11,6 +11,10 @@ class Stock:
     def price(self, date = None):
         return self._gbls.price(self._sid, date)
 
+    def name(self):
+        mp = self._gbls.stockidnamemapping()
+        return mp.getname(self._sid)
+
     # Below info come from history prices
     def historyprice(self, date):
         return self._gbls.historyprice(self._sid, date)
@@ -36,3 +40,4 @@ if __name__ == "__main__":
     gbls = Globals.get_instance()
     s = Stock(gbls, "300230")
     print s.id()
+    print s.name()

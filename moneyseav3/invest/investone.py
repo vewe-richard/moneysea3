@@ -78,12 +78,13 @@ class InvestOne:
 
 if __name__ == "__main__":
     gbls = Globals.get_instance()
-    S = gbls.getstock("300230")
+    S = gbls.getstock("002061")
+#    S = gbls.getstock("300230")
 #    S = gbls.getstock("601318")
     io = InvestOne(S)
     left = io.buy(20000, (2011, 11, 25))
 
-    print "Buy > "
+    print "Buy > ", S.id()
     print "Left: ", left
     print "share: ", io.share(), "valueonbuy: ", io.valueonbuy()
 
