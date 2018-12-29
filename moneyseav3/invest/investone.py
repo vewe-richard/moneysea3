@@ -18,6 +18,17 @@ class InvestOne:
         self._valueonbuy = self._share * p
         return (money - self._valueonbuy)
 
+    def buyshare(self, share, date):
+        self._buydate = date
+        hps = self._s.historypricesshare(date)
+        if hps == None:
+            raise Exception("Can not buy stock " + self._s.id() + " on " + self.strdate(date))
+        p = hps[0]
+        self._initshare = share
+        self._share = self._initshare
+        self._valueonbuy = self._share * p
+        return 0
+
     def sell(self, date):
         hps = self._s.historypricesshare(date)
         if hps == None:

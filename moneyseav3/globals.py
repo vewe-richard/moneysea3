@@ -1,6 +1,7 @@
 from moneyseav3.resources.stockidnamemapping import StockIdNameMapping
 from moneyseav3.resources.stock import Stock
 from moneyseav3.resources.prices import Prices
+from moneyseav3.resources.oneholdedrecord import OneHoldedRecord
 
 
 class Globals:
@@ -32,6 +33,9 @@ class Globals:
 
     def getstock(self, stockid):
         return self._stocks[stockid]
+
+    def oneholdedrecord(self, recordpath):
+        return OneHoldedRecord(recordpath)
 
 
     # for Stock class usage
