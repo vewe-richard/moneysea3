@@ -65,7 +65,7 @@ class FF10jqka(FFBase):
 
 
 if __name__ == "__main__":
-    ff = FF10jqka("input/stocks/ylgf-300230/finance")
+    ff = FF10jqka("input/stocks/ff10jqka/ylgf-300230/finance")
 #    ff = FF10jqka("input/stocks/yxkj-300231/finance")
     ff.doparse()
 #    print ff.allreports()

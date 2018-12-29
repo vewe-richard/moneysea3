@@ -1,0 +1,28 @@
+chrome
+同花顺 =》 财务指标 =》按报告期
+类似下面
+http://stockpage.10jqka.com.cn/002288/finance/#finance
+
+选择表格，然后复制，在vim中粘贴
+
+./utils/newstock
+
+
+
+note.xml
+<xml>
+    <adding></adding>
+    <summary>
+        *****   根据指标买卖
+        ***--   接近指标，近期卖出
+        ***++   接近指标，近期买入
+        ***xx   暂时未持有
+        xxxxx   不考虑
+    </summary>
+    <note>
+        2018/11/16
+        劣势：
+        优势：
+        综合：
+    </note>
+</xml>
