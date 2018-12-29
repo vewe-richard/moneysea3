@@ -107,19 +107,19 @@ BaseSelect(prefilters[], props[], postfilters)
 3.2 More
 
             Globals 
-   ._prices     ._stockidnamemapping
+   ._prices     ._stockidnamemapping    ._ff10jqka
 ----------------------------------------------
-            <resources>
-    Prices      StockIdNameMapping
+            <resources>                 <resources>
+    Prices      StockIdNameMapping      FF10jqka
 ----------------------------------------------
             <fileparsers>
-                StockIdNameMappingFile
+                StockIdNameMappingFile  FF10jqkaDir
 ----------------------------------------------
             /inputs/
     /prices/*  /common/stock_id_name_map/*    
                                              
 
-3.3 Others
+3.3 update
                 UpdateAction
 -------------------------------------------
                   <tools>        
@@ -145,6 +145,8 @@ add a test:
     . define an action by inherit from BaseTestUnit, and add this class to the group action class::__init__
         --- refer  /tests/verifyaction.py
                    /tests/verify/prices.py
+
+3.5 
 
 3.5 Support classes
 . Configs

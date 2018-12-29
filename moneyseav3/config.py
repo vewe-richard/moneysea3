@@ -12,7 +12,7 @@ class Config:
     CURRENT_HOLDED_PATH = "input/holded"
 
     STOCKS_PATH_NETEASE = "input/stocks/netease"
-    STOCKS_PATH_THS = "input/stocks/ths"
+    STOCKS_PATH_THS = "input/stocks/ff10jqka"
 
     CLASSFY_PATH = "input/classfy"
     CLASSFY_XML = "input/classfy/classfy.xml"

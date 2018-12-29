@@ -2,6 +2,7 @@ from moneyseav3.resources.stockidnamemapping import StockIdNameMapping
 from moneyseav3.resources.stock import Stock
 from moneyseav3.resources.prices import Prices
 from moneyseav3.resources.oneholdedrecord import OneHoldedRecord
+from moneyseav3.resources.ff10jqka import FF10jqka
 
 
 class Globals:
@@ -18,6 +19,7 @@ class Globals:
             self._stocks[sid] = Stock(self, sid)
 
         self._prices = Prices()
+        self._ff10jqka = None
 
 
     @classmethod
@@ -56,6 +58,10 @@ class Globals:
     def stockidnamemapping(self):
         return self._stockidnamemapping
 
+    def getff10jqka(self):
+        if self._ff10jqka == None:
+            self._ff10jqka = FF10jqka()
+        return self._ff10jqka
 
 if __name__ == "__main__":
     pass
