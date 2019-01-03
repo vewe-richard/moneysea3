@@ -37,7 +37,9 @@ class Stock:
 if __name__ == "__main__":
     from moneyseav3.globals import Globals
 
+    idx = "0000001" #"300230"
     gbls = Globals.get_instance()
-    s = Stock(gbls, "300230")
+    s = Stock(gbls, idx)
     print s.id()
     print s.name()
+    print s.price((2018, 12, 27))

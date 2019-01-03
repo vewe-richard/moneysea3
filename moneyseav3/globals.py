@@ -64,4 +64,12 @@ class Globals:
         return self._ff10jqka
 
 if __name__ == "__main__":
+    gbls = Globals.get_instance()
+    print gbls.price("0000001", (2018,12,27))
     pass
+
+
+
+
+
+

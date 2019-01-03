@@ -1,6 +1,7 @@
 
 from moneyseav3.actions.baseaction import BaseAction
 from moneyseav3.tests.verifyaction import VerifyAction
+from moneyseav3.tests.stataction import StatAction
 
 class TestAuto(BaseAction):
     def cmd(self):
@@ -46,7 +47,7 @@ class ShowAction(BaseAction):
 
 class TestAction(BaseAction):
     def __init__(self):
-        self._actions = [TestAuto, VerifyAction, ShowAction]
+        self._actions = [TestAuto, VerifyAction, StatAction, ShowAction]
         pass
 
     def cmd(self):

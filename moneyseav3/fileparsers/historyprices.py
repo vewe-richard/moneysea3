@@ -41,7 +41,7 @@ class HistoryPrices:
             return False
         return True
 
-if __name__ == "__main__":
+if __name__ == "__main__2":
     from moneyseav3.globals import Globals
 
     allstocks = Globals.get_instance().stocks().keys()
@@ -53,3 +53,10 @@ if __name__ == "__main__":
         print hp.range()
         break
 
+if __name__ == "__main__":
+    idx = "0000001"
+    hp = HistoryPrices(idx)
+    dct = hp.getprices()
+    print dct
+    print idx, len(dct)
+    print hp.range()
