@@ -2,11 +2,12 @@ from moneyseav3.tests.basetestaction import BaseTestAction
 from moneyseav3.tests.stat.hs300 import HS300
 from moneyseav3.tests.stat.drawylgf import DrawYlgf
 from moneyseav3.tests.stat.invest114_315 import Invest114_315
+from moneyseav3.tests.stat.buyselldates import BuySellDates
 
 
 class StatAction(BaseTestAction):
     def __init__(self):
-        self._actions = [HS300, DrawYlgf, Invest114_315]
+        self._actions = [HS300, DrawYlgf, Invest114_315, BuySellDates]
         pass
 
     def cmd(self):
