@@ -107,6 +107,7 @@ class BuySellDates(BaseTestUnit):
         ay.append(5)
         plt.plot(ax, ay, color="blue", linewidth=2)
 
+        #index 250, Sep 15
         ax = []
         ay = []
         ax.append(250)
