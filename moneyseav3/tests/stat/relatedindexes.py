@@ -24,11 +24,20 @@
 
 from moneyseav3.globals import Globals
 from moneyseav3.tests.basetestunit import BaseTestUnit
+import datetime, time
 
 class IndexStats:
+    DEBUG = True
+
     def __init__(self, historyused, parserange, indexs):
         self._hstart = historyused[0]
         self._hend = historyused[1]
+
+        dt = datetime.date(self._hstart[0], self._hstart[1], self._hstart[2])
+        self._htstart = time.mktime(dt.timetuple())
+
+        dt = datetime.date(self._hend[0], self._hend[1], self._hend[2])
+        self._htend = time.mktime(dt.timetuple())
 
         self._rstart = parserange[0]
         self._rend = parserange[1]
@@ -36,8 +45,31 @@ class IndexStats:
         pass
 
     def run(self):
+        count = 0
+        years = {}
         for year in range(self._hstart[0], self._hend[0] + 1):
-            print year
+            start = (year, self._rstart[1], self._rstart[2])
+            end = (year, self._rend[1], self._rend[2])
+            #for every stock
+            ss = Globals.get_instance().stocks()
+            count2 = 0
+            thisyear = {}
+            for s in ss:
+                S = ss[s]
+                ids = {}
+                for index in self._indexs:
+                    idx = index()
+                    idx.setup(start, end, S)
+                    ids[idx.name()] = idx.value()
+                thisyear[s] = ids
+                count2 += 1
+                if count2 > 3 and self.DEBUG:
+                    break
+            years[year] = thisyear
+            count += 1
+            if count > 2 and self.DEBUG:
+                break
+        print years
         pass
 
 class BaseIndex:
@@ -45,11 +77,22 @@ class BaseIndex:
         return "base"
     def value(self):
         return 0
+    def setup(self, start, end, s):
+        self._start = start
+        self._end = end
+        self._s = s
+        pass
 
 class GainIndex(BaseIndex):
     def name(self):
         return "gain"
     def value(self):
+        #def historypricesshare(self, date):
+        #def gethpssimplelist(self):
+
+        #start price
+        hps = self._s.historypricesshare(self._start)
+        print hps
         return 0
 
 class RelatedIndexes(BaseTestUnit):
@@ -61,7 +104,8 @@ class RelatedIndexes(BaseTestUnit):
 
     def run(self, args, opts):
         # study indexs from 1/23 to 5/2 every year
-        iss = IndexStats( ((2000, 1, 1), (2018, 11, 30)), ((0, 1, 23), (0, 5, 2)), (GainIndex))
+#        iss = IndexStats( ((2000, 1, 1), (2018, 11, 30)), ((0, 1, 23), (0, 5, 2)), (GainIndex,))
+        iss = IndexStats( ((2016, 1, 1), (2018, 11, 30)), ((0, 1, 23), (0, 5, 2)), (GainIndex,))
         iss.run()
         pass
  
