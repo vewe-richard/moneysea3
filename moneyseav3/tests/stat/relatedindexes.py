@@ -20,14 +20,18 @@
 #       name(), value()
 #
 #
+# result
+# index  price 0.453812381248 --- 价格无关
+# index  marketvalue 0.454033516678 --- 市值无关
 #
 
 from moneyseav3.globals import Globals
 from moneyseav3.tests.basetestunit import BaseTestUnit
 import datetime, time
+import json
 
 class IndexStats:
-    DEBUG = True
+    DEBUG = False
 
     def __init__(self, historyused, parserange, indexs):
         self._hstart = historyused[0]
@@ -48,6 +52,7 @@ class IndexStats:
         count = 0
         years = {}
         for year in range(self._hstart[0], self._hend[0] + 1):
+            print "get index from ", year
             start = (year, self._rstart[1], self._rstart[2])
             end = (year, self._rend[1], self._rend[2])
             #for every stock
@@ -60,16 +65,19 @@ class IndexStats:
                 for index in self._indexs:
                     idx = index()
                     idx.setup(start, end, S)
-                    ids[idx.name()] = idx.value()
+                    v = idx.value()
+                    ids[idx.name()] = v
                 thisyear[s] = ids
                 count2 += 1
-                if count2 > 3 and self.DEBUG:
+                if count2 > 7 and self.DEBUG:
                     break
+#                    pass
             years[year] = thisyear
             count += 1
             if count > 2 and self.DEBUG:
                 break
-        print years
+#        print years
+        json.dump(years, open("output/temp/years",'w'))
         pass
 
 class BaseIndex:
@@ -91,9 +99,123 @@ class GainIndex(BaseIndex):
         #def gethpssimplelist(self):
 
         #start price
-        hps = self._s.historypricesshare(self._start)
-        print hps
-        return 0
+        hps = self._s.validhistorypricesshare(self._start, 15)
+        if hps == None:
+            return None
+        #end price
+        hps2 = self._s.validhistorypricesshare(self._end, 15)
+        if hps2 == None:
+            return None
+
+        try:
+            share = (hps2[2]/hps2[0])/(hps[2]/hps[0])
+        except:
+            print "Discard:", self._s.name(), self._start, self._end, (hps2[2], hps2[0]), (hps[2], hps[0])
+            return None
+        #self._s.gethpssimplelist()
+        gain = (share * hps2[0])/(hps[0]) - 1
+        return gain
+
+class PriceIndex(BaseIndex):
+    def value(self):
+        hps = self._s.validhistorypricesshare(self._start, 15)
+        if hps == None:
+            return None
+        return hps[0]
+
+    def name(self):
+        return "price"
+
+class MarketValueIndex(BaseIndex):
+    def value(self):
+        hps = self._s.validhistorypricesshare(self._start, 15)
+        if hps == None:
+            return None
+        return hps[2]
+
+    def name(self):
+        return "marketvalue"
+
+class ParseIndexes:
+    def run(self):
+        ys = json.load(open("output/temp/years"))
+        ids = self.indexes(ys)
+        stats = {}
+        for ID in ids:
+            if ID == "gain":
+                continue
+            stats[ID] = {}
+
+        for y in ys:
+            ss = ys[y]
+            for ID in ids:
+                if ID == "gain":
+                    continue
+                rate = self.parse(y, ss, ID)
+                stats[ID][y] = rate
+#            break #DEBUG
+
+        f = open("output/temp/result", "w")
+        for ID in ids:
+            if ID == "gain":
+                continue
+            avg = self.average(stats[ID])
+            print "index ", ID, avg
+            print >> f, ID
+            for y in sorted(stats[ID].keys()):
+                print >> f, "\t", y, stats[ID][y]
+        f.close()
+
+
+        pass
+
+    def average(self, stats):
+        total = 0
+        count = 0
+        for y in stats:
+            total += stats[y]
+            count += 1
+
+        return total/count
+
+    def indexes(self, ys):
+        for y in ys:
+            ss = ys[y]
+            for s in ss:
+                return ss[s].keys()
+
+    def parse(self, year, ss, ID):
+        lgain = []
+        lid = []
+        for s in ss:
+            S = ss[s]
+            if S["gain"] == None or S[ID] == None:
+                continue
+            lgain.append(S["gain"])
+            lid.append(S[ID])
+        slgain = sorted(lgain)
+        slid = sorted(lid)
+        sz = len(slgain)
+        avggain = slgain[sz/2]
+        avgid = slid[sz/2]
+
+        goodgains = 0
+        goodids = 0
+        for s in ss:
+            S = ss[s]
+            gain = S["gain"]
+            vid = S[ID]
+            if gain == None or vid == None:
+                continue
+            if gain > avggain:
+                goodgains += 1
+                if vid > avgid:
+                    goodids += 1
+
+        rate = goodids * 1.0 / goodgains
+        return rate
+
+
 
 class RelatedIndexes(BaseTestUnit):
     def cmd(self):
@@ -104,9 +226,17 @@ class RelatedIndexes(BaseTestUnit):
 
     def run(self, args, opts):
         # study indexs from 1/23 to 5/2 every year
-#        iss = IndexStats( ((2000, 1, 1), (2018, 11, 30)), ((0, 1, 23), (0, 5, 2)), (GainIndex,))
-        iss = IndexStats( ((2016, 1, 1), (2018, 11, 30)), ((0, 1, 23), (0, 5, 2)), (GainIndex,))
-        iss.run()
+        if len(args) < 1:
+            print "please specify the step"
+            return
+
+        if args[0] == "gen":
+            iss = IndexStats( ((2000, 1, 1), (2018, 11, 30)), ((0, 1, 23), (0, 5, 7)), (GainIndex, PriceIndex, MarketValueIndex))
+#            iss = IndexStats( ((2016, 1, 1), (2018, 11, 30)), ((0, 1, 23), (0, 5, 7)), (GainIndex,PriceIndex))
+            iss.run()
+        elif args[0] == "parse":
+            pi = ParseIndexes()
+            pi.run()
         pass
  
 

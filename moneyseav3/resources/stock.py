@@ -1,4 +1,6 @@
 
+import datetime, time
+
 class Stock:
     def __init__(self, gbls, sid):
         self._sid = sid
@@ -28,6 +30,19 @@ class Stock:
     # return price, and share change on this date
     def historypricesshare(self, date):
         return self._gbls.historypricesshare(self._sid, date)
+
+    # return a valid price near date, [date, date + range]
+    def validhistorypricesshare(self, date, rng):
+        dt = datetime.date(date[0], date[1], date[2])
+        start = time.mktime(dt.timetuple())
+        for i in range(0, rng):
+            tmptime = start + i * (3600*24)
+            ndt = datetime.date.fromtimestamp(tmptime)
+            hps = self._gbls.historypricesshare(self._sid, (ndt.year, ndt.month, ndt.day))
+            if hps == None:
+                continue
+            return hps
+        return None
 
     def gethpssimplelist(self):
         return self._gbls.gethpssimplelist(self._sid)
