@@ -20,6 +20,8 @@ class FF10jqka(FFBase):
         self._oldest = 100000
         self._latest = -10000
 
+        if len(datalist) < 1:
+            return
         for date in datalist[0]:
             year, season = self.year_season(date)
             index = self.getindex(year, season)
