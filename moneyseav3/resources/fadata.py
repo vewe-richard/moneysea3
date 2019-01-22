@@ -1,4 +1,3 @@
-from moneyseav3.globals import Globals
 from moneyseav3.config import Config
 from moneyseav3.fileparsers.ffnetease import FFNetEase
 from moneyseav3.fileparsers.ff10jqka import FF10jqka
@@ -12,6 +11,7 @@ class FaData:
 
         self._ff = None
         if source == self.TONGHS:
+            from moneyseav3.globals import Globals
             path = Globals.get_instance().getff10jqka().getpath(stockid) + "/finance"
             self._ff = FF10jqka(path)
             self._ff.doparse()
@@ -59,6 +59,9 @@ class FaData:
 
 if __name__ == "__main__":
 
-    gbls = Globals.get_instance()
-    ff10 = gbls.getff10jqka()
-    print ff10.allstocks()
+    fd = FaData("600671", source=FaData.NETEASE)
+    r = fd.report(2017, 2)
+    print r
+    r = fd.report(2016, 2)
+    print r
+

@@ -21,8 +21,13 @@
 #
 #
 # result
+#            iss = IndexStats( ((2000, 1, 1), (2018, 11, 30)), ((0, 1, 23), (0, 5, 7)), (GainIndex, ProfitValueIndex))
 # index  price 0.453812381248 --- 价格无关
 # index  marketvalue 0.454033516678 --- 市值无关
+# index  profitvalue 0.444710111726 --- 上年第三季度的利润无关
+# index  sales_adding 0.507964677631 --- 无相关性
+# index  profit2_adding 0.514261112606 --- 无相关性
+# index  profit_adding 0.507917487484 --- 无相关性
 #
 
 from moneyseav3.globals import Globals
@@ -54,7 +59,7 @@ class IndexStats:
         for year in range(self._hstart[0], self._hend[0] + 1):
             print "get index from ", year
             start = (year, self._rstart[1], self._rstart[2])
-            end = (year, self._rend[1], self._rend[2])
+            end = (year + self._rend[0], self._rend[1], self._rend[2])
             #for every stock
             ss = Globals.get_instance().stocks()
             count2 = 0
@@ -136,6 +141,100 @@ class MarketValueIndex(BaseIndex):
     def name(self):
         return "marketvalue"
 
+class ProfitValueIndex(BaseIndex):
+    def value(self):
+        fd = self._s.fd()
+
+#        print self._s.id(), self._start, self._start[0] - 1
+
+        r = fd.report(self._start[0] - 1, 2)
+        try:
+            p = r["profit"]
+        except:
+            return None
+        return p
+
+    def name(self):
+        return "profitvalue"
+
+class ProfitAddingIndex(BaseIndex):
+    def value(self):
+        fd = self._s.fd()
+
+        r = fd.report(self._start[0] - 1, 2)
+        try:
+            p = r["profit_adding"]
+        except:
+            return None
+        return p
+
+    def name(self):
+        return "profit_adding"
+
+class Profit2AddingIndex(BaseIndex):
+    def value(self):
+        fd = self._s.fd()
+
+        r = fd.report(self._start[0] - 1, 2)
+        try:
+            p = r["profit2_adding"]
+        except:
+            return None
+        return p
+
+    def name(self):
+        return "profit2_adding"
+
+class SalesAddingIndex(BaseIndex):
+    def value(self):
+        fd = self._s.fd()
+
+        r = fd.report(self._start[0] - 1, 2)
+        try:
+            p = r["sales_adding"]
+        except:
+            return None
+        return p
+
+    def name(self):
+        return "sales_adding"
+
+class PerSEarningIndex(BaseIndex):
+    def value(self):
+        fd = self._s.fd()
+
+        r = fd.report(self._start[0] - 1, 2)
+        try:
+            p = r["per_share_earnings"]
+        except:
+            return None
+        return p
+
+    def name(self):
+        return "per_share_earnings"
+
+class PseYieldIndex(BaseIndex):
+    def value(self):
+        fd = self._s.fd()
+
+        r = fd.report(self._start[0] - 1, 2)
+        try:
+            p = r["per_share_earnings"]
+        except:
+            return None
+        if p == None:
+            return None
+
+        hps = self._s.validhistorypricesshare(self._start, 15)
+        if hps == None:
+            return None
+
+        return p/hps[0]
+
+
+    def name(self):
+        return "pse_yield"
+
 class ParseIndexes:
     def run(self):
         ys = json.load(open("output/temp/years"))
@@ -152,6 +251,8 @@ class ParseIndexes:
                 if ID == "gain":
                     continue
                 rate = self.parse(y, ss, ID)
+                if rate == None:
+                    continue
                 stats[ID][y] = rate
 #            break #DEBUG
 
@@ -196,6 +297,9 @@ class ParseIndexes:
         slgain = sorted(lgain)
         slid = sorted(lid)
         sz = len(slgain)
+        if sz < 200:
+            print year, ID, "samples count is too small, discard"
+            return None
         avggain = slgain[sz/2]
         avgid = slid[sz/2]
 
@@ -231,7 +335,7 @@ class RelatedIndexes(BaseTestUnit):
             return
 
         if args[0] == "gen":
-            iss = IndexStats( ((2000, 1, 1), (2018, 11, 30)), ((0, 1, 23), (0, 5, 7)), (GainIndex, PriceIndex, MarketValueIndex))
+            iss = IndexStats( ((2000, 1, 1), (2018, 11, 30)), ((0, 1, 23), (3, 11, 7)), (GainIndex, PseYieldIndex))
 #            iss = IndexStats( ((2016, 1, 1), (2018, 11, 30)), ((0, 1, 23), (0, 5, 7)), (GainIndex,PriceIndex))
             iss.run()
         elif args[0] == "parse":

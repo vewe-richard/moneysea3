@@ -86,7 +86,7 @@ class FadataTest(BaseTestUnit):
                     ratio = abs((p1 - p2)/p2)
                     self._totalsample += 1
 
-                    if delta < 20:
+                    if delta < 40:
                         continue
 
                     if ratio < 0.3:
@@ -104,7 +104,7 @@ class FadataTest(BaseTestUnit):
         ss = Globals.get_instance().getff10jqka().allstocks()
         count = 0
         for s in ss:
-            self.compare(s, "profit2_adding")
+            self.compare(s, "sales_adding")
             count += 1
 #            if count > 10:
 #                break

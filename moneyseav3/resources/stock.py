@@ -1,10 +1,12 @@
 
 import datetime, time
+from moneyseav3.resources.fadata import FaData
 
 class Stock:
     def __init__(self, gbls, sid):
         self._sid = sid
         self._gbls = gbls
+        self._fd = None
 
     def id(self):
         return self._sid
@@ -46,6 +48,11 @@ class Stock:
 
     def gethpssimplelist(self):
         return self._gbls.gethpssimplelist(self._sid)
+
+    def fd(self):
+        if self._fd == None:
+            self._fd = FaData(self._sid)
+        return self._fd
 
 
 

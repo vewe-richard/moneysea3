@@ -6,7 +6,7 @@ import datetime
 # _data[0] _data[1] _data[2] _data[3] --- 2009 first, second, third, forth season report data
 # _data[4] _data[5] _data[6] _data[7] --- 2010 first, second, third, forth season report data
 class FFBase(BaseParser):
-    MAX_YEARS = 18  #max years of data to save for parsing
+    MAX_YEARS = 22  #max years of data to save for parsing
 
     def __init__(self, filepath):
         BaseParser.__init__(self, filepath)

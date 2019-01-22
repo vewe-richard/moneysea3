@@ -62,6 +62,8 @@ class FFNetEase(FFBase):
             return None
 
         ratio = (fd[tag] - pfd[tag])/abs(pfd[tag])
+#        if abs(ratio*100 + 0.484261501211) < 0.0001:
+#            print fd[tag], pfd[tag]
         return ratio * 100
 
 
