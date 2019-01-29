@@ -4,11 +4,12 @@ from moneyseav3.tests.stat.drawylgf import DrawYlgf
 from moneyseav3.tests.stat.invest114_315 import Invest114_315
 from moneyseav3.tests.stat.buyselldates import BuySellDates
 from moneyseav3.tests.stat.relatedindexes import RelatedIndexes
+from moneyseav3.tests.stat.relatedindex2 import RelatedIndex2
 
 
 class StatAction(BaseTestAction):
     def __init__(self):
-        self._actions = [HS300, DrawYlgf, Invest114_315, BuySellDates, RelatedIndexes]
+        self._actions = [HS300, DrawYlgf, Invest114_315, BuySellDates, RelatedIndexes, RelatedIndex2]
         pass
 
     def cmd(self):

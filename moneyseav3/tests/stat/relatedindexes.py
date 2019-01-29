@@ -28,6 +28,10 @@
 # index  sales_adding 0.507964677631 --- 无相关性
 # index  profit2_adding 0.514261112606 --- 无相关性
 # index  profit_adding 0.507917487484 --- 无相关性
+# index  pse_yield 0.451281994019 --- 无相关性
+# index  eqratio_profit2_adding 0.519180889072 --- 无关
+# index  eqratio_profit_adding 0.502294872679
+# index  eqratio_sales_adding 0.487897283357
 #
 
 from moneyseav3.globals import Globals
@@ -68,7 +72,7 @@ class IndexStats:
                 S = ss[s]
                 ids = {}
                 for index in self._indexs:
-                    idx = index()
+                    idx = index #()
                     idx.setup(start, end, S)
                     v = idx.value()
                     ids[idx.name()] = v
@@ -235,7 +239,51 @@ class PseYieldIndex(BaseIndex):
     def name(self):
         return "pse_yield"
 
+class EQRatio(BaseIndex):
+    def __init__(self, tag):
+        self._tag = tag
+        pass
+    def value(self):
+        fd = self._s.fd()
+        r = fd.report(self._start[0] - 1, 2)
+        try:
+            a = r[self._tag] / 100
+            e = r["per_share_earnings"]
+        except:
+            return None
+        if a == None:
+            return None
+
+#        return (1+a3)
+        if e < 0.0001:
+            return None
+        if abs(a + 1) < 0.000001:
+            a = -0.99999
+
+        hps = self._s.validhistorypricesshare(self._start, 15)
+        if hps == None:
+            return None
+
+
+        n = 5
+        p = 0.08
+        eq = (((p+1)/(a+1))**n) * p  #------ (2)
+        q = e/eq
+
+        dratio = (q - hps[0])/hps[0]
+
+#        print "adding, \tprice, \te, \tq \tdratio"
+#        print a, hps[0], "\t", e, q, "\t", dratio
+
+        return dratio
+
+
+    def name(self):
+        return "eqratio_" + self._tag
+
+
 class ParseIndexes:
+    DEBUG = False
     def run(self):
         ys = json.load(open("output/temp/years"))
         ids = self.indexes(ys)
@@ -266,6 +314,7 @@ class ParseIndexes:
             for y in sorted(stats[ID].keys()):
                 print >> f, "\t", y, stats[ID][y]
         f.close()
+        json.dump(stats, open("output/temp/result-json",'w'))
 
 
         pass
@@ -274,7 +323,7 @@ class ParseIndexes:
         total = 0
         count = 0
         for y in stats:
-            total += stats[y]
+            total += stats[y][0]
             count += 1
 
         return total/count
@@ -297,7 +346,7 @@ class ParseIndexes:
         slgain = sorted(lgain)
         slid = sorted(lid)
         sz = len(slgain)
-        if sz < 200:
+        if sz < 200 and not self.DEBUG:
             print year, ID, "samples count is too small, discard"
             return None
         avggain = slgain[sz/2]
@@ -317,8 +366,82 @@ class ParseIndexes:
                     goodids += 1
 
         rate = goodids * 1.0 / goodgains
-        return rate
+        return (rate, avggain, avgid)
 
+class Parse2Indexes:
+    DEBUG = False
+    def run(self):
+        ys = json.load(open("output/temp/years"))
+        stats = json.load(open("output/temp/result-json"))
+        for y in range(2000, 2019):
+            s1 = stats["eqratio_profit2_adding"]
+            s2 = stats["eqratio_profit_adding"]
+            s3= stats["eqratio_sales_adding"]
+            stry = str(y)
+            try:
+                sy1 = s1[stry]
+            except:
+                sy1 = None
+
+            try:
+                sy2 = s2[stry]
+            except:
+                sy2 = None
+
+            try:
+                sy3 = s3[stry]
+            except:
+                sy3 = None
+
+            self.parse(stry, (sy1, sy2, sy3), ys)
+            continue
+
+            print ""
+            print sy1
+            print sy2
+            print sy3
+
+        pass
+
+    def parse(self, y, sylist, ys):
+        (avggain, avgsy) = self.average(sylist)
+        if avggain == None:
+            return
+
+        year = ys[y]
+        match = 0
+        goodmatch = 0
+        for s in year:
+            S = year[s]
+            pe = S["eqratio_profit_adding"]
+            se = S["eqratio_sales_adding"]
+            g = S["gain"]
+            if pe == None or se == None or g == None:
+                continue
+            if pe > avgsy and se > avgsy:
+                match += 1
+                if g > avggain:
+                    goodmatch += 1
+
+        if match > 0:
+            print y, match, goodmatch, goodmatch*1.0/match
+
+        pass
+
+    def average(self, sylist):
+        gain = 0
+        syv = 0
+        count = 0
+        for sy in sylist:
+            if sy == None:
+                continue
+            gain += sy[1]
+            syv += sy[2]
+            count += 1
+        if count == 0:
+            return (None, None)
+        return (gain/count, syv/count)
+ 
 
 
 class RelatedIndexes(BaseTestUnit):
@@ -335,11 +458,14 @@ class RelatedIndexes(BaseTestUnit):
             return
 
         if args[0] == "gen":
-            iss = IndexStats( ((2000, 1, 1), (2018, 11, 30)), ((0, 1, 23), (3, 11, 7)), (GainIndex, PseYieldIndex))
+            iss = IndexStats( ((2000, 1, 1), (2018, 11, 30)), ((0, 1, 23), (0, 5, 7)), (GainIndex(), EQRatio("profit_adding"), EQRatio("profit2_adding"), EQRatio("sales_adding")))
 #            iss = IndexStats( ((2016, 1, 1), (2018, 11, 30)), ((0, 1, 23), (0, 5, 7)), (GainIndex,PriceIndex))
             iss.run()
         elif args[0] == "parse":
             pi = ParseIndexes()
+            pi.run()
+        elif args[0] == "parse2":
+            pi = Parse2Indexes()
             pi.run()
         pass
  
