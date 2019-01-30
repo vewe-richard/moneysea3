@@ -3,6 +3,8 @@ from moneyseav3.tests.basetestunit import BaseTestUnit
 import datetime, time
 import json
 from moneyseav3.tests.stat.indexes import *
+from os import listdir
+from os.path import isfile, join
 
 
 class RelatedIndex2(BaseTestUnit):
@@ -14,9 +16,10 @@ class RelatedIndex2(BaseTestUnit):
 
     RANGE_STEP = (2*30)  #two month
     INVEST_RANGE = (5*365) #5 years
-    DEBUG = True
+    DEBUG = False
 
     OUTPUTDIR = "output/indexes/"
+    OUTPUTDIR2 = "output/indexesstat/"
 
     def cmd(self):
         return "index2"
@@ -33,7 +36,7 @@ class RelatedIndex2(BaseTestUnit):
             self.HISTORY_DATA_INVEST_START = (2017, 1, 1)
             self.RANGE_STEP = (8*30)
             self.INVEST_RANGE = (16*30)
-            self._ss = {"300230": Globals.get_instance().getstock("300230"), "002061": Globals.get_instance().getstock("002061"),}
+            self._ss = {"300230": Globals.get_instance().getstock("300230"), "002061": Globals.get_instance().getstock("002061"), "600276": Globals.get_instance().getstock("600276"),}
             self._indexes = (GainIndex(), EQRatio("profit_adding"), EQRatio("profit2_adding"), EQRatio("sales_adding"))
 
             aa = []
@@ -58,7 +61,7 @@ class RelatedIndex2(BaseTestUnit):
             for days in range(self.RANGE_STEP, self.INVEST_RANGE + self.RANGE_STEP, self.RANGE_STEP):
                 self.everyrange(days)
         elif args[0] == "parse":
-            print "parsing"
+            self.parse()
         elif args[0] == "test":
             self.test()
         pass
@@ -110,6 +113,119 @@ class RelatedIndex2(BaseTestUnit):
 
     def eqratio_idxs(self):
         return (EQRatio("profit_adding"), EQRatio("profit2_adding"), EQRatio("sales_adding"))
+
+    def parse(self):
+        mypath = "output/indexes/"
+        onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
+
+        for f in onlyfiles:
+            try:
+                ys = json.load(open(join(mypath, f)))
+            except Exception as e:
+                print "skip", f
+                print e
+                continue
+            if len(ys.keys()) < 1:
+                print "keys lengh is zero"
+                continue
+
+            main = {}
+            for y in ys:
+                main[y] = self.parseyear(y, ys[y])
+                self.statistic(main[y], y, ys[y])
+            self.statoutput(f, main)
+
+    def parseyear(self, year, ydata):
+        ystat = {}
+        for s in ydata:
+            keys = ydata[s]
+            break
+
+        for k in keys:
+            ystat[k] = {"baseline":self.parseindex(k, ydata),}
+
+        return ystat
+
+    def parseindex(self, key, ydata):
+#        print "---"
+        ll = []
+        for s in ydata:
+            if ydata[s][key] == None:
+                continue
+            ll.append(ydata[s][key])
+        sll = sorted(ll)
+        l = len(sll)
+        if l == 0:
+            return None
+
+        if key == "gain":
+            offset = int(l * self.GAIN_GOOD_RATIO)
+        else:
+            offset = int(l * self.INDEX_GOOD_RATIO)
+
+        baseline = sll[offset]
+#        print key, sll
+#        print "offset:", offset, baseline
+
+#        print "+++"
+        return baseline
+
+    def statistic(self, baseline, year, ydata):
+        bbs = baseline["gain"]["baseline"]
+        if bbs == None:
+            return None
+
+        for k in baseline:
+            baseline[k]["goodindex"] = 0
+            baseline[k]["goodgain"] = 0
+
+
+        for s in ydata:
+            S = ydata[s]
+            sgain = S["gain"]
+            if sgain == None:
+                continue
+
+            for k in S:
+                if k == "gain":
+                    continue
+                kbs = baseline[k]["baseline"]
+                if kbs == None:
+                    continue
+                if S[k] == None:
+                    continue
+
+#                print k, S[k], kbs, bbs
+                if S[k] > kbs:
+                    baseline[k]["goodindex"] += 1
+                    if S["gain"] > bbs:
+                        baseline[k]["goodgain"] += 1
+
+    def statoutput(self, f, main):
+        for y in main:
+            keys = main[y].keys()
+            break
+        summ = {}
+        for k in keys:
+            summ[k] = {"goodindex":0, "goodgain":0}
+        for y in main:
+            for k in main[y]:
+                summ[k]["goodindex"] += main[y][k]["goodindex"]
+                summ[k]["goodgain"] += main[y][k]["goodgain"]
+        for k in summ:
+            if summ[k]["goodindex"] == 0:
+                summ[k]["ratio"] = 0.00001
+                continue
+            summ[k]["ratio"] = summ[k]["goodgain"] * 1.0 / summ[k]["goodindex"]
+
+        path = self.OUTPUTDIR2 + f
+        json.dump(summ, open(path,'w'))
+
+        pass
+
+
+
+
 
 
 

@@ -68,7 +68,7 @@ class ReportIndex(BaseIndex):
         return p
 
     def name(self):
-        return "report." + self._tag + str(self._reportseason)
+        return "report." + self._tag + "_" + str(self._reportseason[1])
 
 class PseYieldIndex(BaseIndex):
     def value(self):
