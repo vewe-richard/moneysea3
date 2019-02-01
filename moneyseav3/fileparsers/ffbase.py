@@ -43,6 +43,8 @@ class FFBase(BaseParser):
 
     def report(self, year, season):
         index = self.getindex(year, season)
+        if index == -1:
+            return None
         return self._data[index]
 
     def range(self):

@@ -5,6 +5,7 @@ import json
 from moneyseav3.tests.stat.indexes import *
 from os import listdir
 from os.path import isfile, join
+import sys
 
 
 class RelatedIndex2(BaseTestUnit):
@@ -20,6 +21,7 @@ class RelatedIndex2(BaseTestUnit):
 
     OUTPUTDIR = "output/indexes/"
     OUTPUTDIR2 = "output/indexesstat/"
+    OUTPUTDIR3 = "output/mixstat/"
 
     def cmd(self):
         return "index2"
@@ -28,21 +30,23 @@ class RelatedIndex2(BaseTestUnit):
         return "parsing related indexes with gain"
 
     def run(self, args, opts):
-        normal_idxs = (GainIndex(), PriceIndex(), MarketValueIndex(), PseYieldIndex())
+        normal_idxs = (GainIndex(), PriceIndex(), MarketValueIndex(), PseYieldIndex(), PriceDeltaIndex())
         report_idxs = self.report_idxs()
         eqratio_idxs = self.eqratio_idxs()
+        rangeadding_idxs = self.rangeadding_idxs()
 
         if self.DEBUG:
             self.HISTORY_DATA_INVEST_START = (2017, 1, 1)
             self.RANGE_STEP = (8*30)
             self.INVEST_RANGE = (16*30)
-            self._ss = {"300230": Globals.get_instance().getstock("300230"), "002061": Globals.get_instance().getstock("002061"), "600276": Globals.get_instance().getstock("600276"),}
+            self._ss = {"300230": Globals.get_instance().getstock("300230"), "002061": Globals.get_instance().getstock("002061"), "600276": Globals.get_instance().getstock("600276"),"600518": Globals.get_instance().getstock("600518"),
+                    "600801": Globals.get_instance().getstock("600801"),"600585": Globals.get_instance().getstock("600585"),}
             self._indexes = (GainIndex(), EQRatio("profit_adding"), EQRatio("profit2_adding"), EQRatio("sales_adding"))
 
             aa = []
             aa.extend(normal_idxs)
-            aa.extend(report_idxs)
-            aa.extend(eqratio_idxs)
+#            aa.extend(report_idxs)
+#            aa.extend(eqratio_idxs)
             self._indexes = aa
         else:
             self._ss = Globals.get_instance().stocks()
@@ -50,6 +54,7 @@ class RelatedIndex2(BaseTestUnit):
             aa.extend(normal_idxs)
             aa.extend(report_idxs)
             aa.extend(eqratio_idxs)
+            aa.extend(rangeadding_idxs)
             self._indexes = aa
 
 
@@ -61,9 +66,15 @@ class RelatedIndex2(BaseTestUnit):
             for days in range(self.RANGE_STEP, self.INVEST_RANGE + self.RANGE_STEP, self.RANGE_STEP):
                 self.everyrange(days)
         elif args[0] == "parse":
-            self.parse()
+            self.parse(self.statistic, self.OUTPUTDIR2)
+        elif args[0] == "output":
+            self.output("output/indexesstat/")
+        elif args[0] == "outputmix":
+            self.output("output/mixstat/")
         elif args[0] == "test":
             self.test()
+        elif args[0] == "mixparse":
+            self.parse(self.mixstatistic, self.OUTPUTDIR3)
         pass
 
     def everyrange(self, days):
@@ -106,19 +117,31 @@ class RelatedIndex2(BaseTestUnit):
         return listidxs
 
     def test(self):
-        aa = self.report_idxs()
-        aa.extend(self.eqratio_idxs())
+#        aa = self.report_idxs()
+#        aa.extend(self.eqratio_idxs())
+        aa = self.rangeadding_idxs()
         print aa
         pass
 
     def eqratio_idxs(self):
         return (EQRatio("profit_adding"), EQRatio("profit2_adding"), EQRatio("sales_adding"))
 
-    def parse(self):
+    def rangeadding_idxs(self):
+        ll = []
+        for rg in range(-6, 0):
+            if rg == 0:
+                continue
+            for tag in ("profit", "profit2", "sales", "per_share_earnings"):
+                ra = RangeAdding(tag, rg)
+                ll.append(ra)
+        return ll
+
+    def parse(self, statmethod, outdir):
         mypath = "output/indexes/"
         onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
 
         for f in onlyfiles:
+#            f = "1860"
             try:
                 ys = json.load(open(join(mypath, f)))
             except Exception as e:
@@ -132,8 +155,10 @@ class RelatedIndex2(BaseTestUnit):
             main = {}
             for y in ys:
                 main[y] = self.parseyear(y, ys[y])
-                self.statistic(main[y], y, ys[y])
-            self.statoutput(f, main)
+                statmethod(main[y], y, ys[y])
+            self.statoutput(f, main, outdir)
+#            break
+
 
     def parseyear(self, year, ydata):
         ystat = {}
@@ -153,7 +178,7 @@ class RelatedIndex2(BaseTestUnit):
             if ydata[s][key] == None:
                 continue
             ll.append(ydata[s][key])
-        sll = sorted(ll)
+        sll = sorted(ll, reverse = True)
         l = len(sll)
         if l == 0:
             return None
@@ -201,7 +226,50 @@ class RelatedIndex2(BaseTestUnit):
                     if S["gain"] > bbs:
                         baseline[k]["goodgain"] += 1
 
-    def statoutput(self, f, main):
+#    MIXINDEXES = ( ("ra_sales_5",), ('ra_sales_4', 'ra_sales_5', 'ra_profit_4', 'ra_profit_5', 'ra_profit2_4', 'ra_profit_3', 'ra_profit2_5','ra_sales_3','ra_profit2_3', 'ra_profit_2','ra_sales_2', 'ra_profit2_2',))
+    MIXINDEXES = ( ('eqratio_profit_adding', 'report.profit_adding_2', 'eqratio_profit2_adding', 'ra_profit_-1', 'eqratio_sales_adding', 'ra_profit_-2', 'ra_profit2_-1', 'report.profit2_adding_2'),
+            ('eqratio_profit2_adding', 'eqratio_profit_adding', 'ra_profit_-1', 'report.profit_adding_2', 'eqratio_sales_adding', 'ra_profit2_-1', 'ra_profit_-2', 'ra_per_share_earnings_-1', ))
+
+
+
+    def mixstatistic(self, baseline, year, ydata):
+        bbs = baseline["gain"]["baseline"]
+        if bbs == None:
+            return None
+
+        for k in baseline:
+            baseline[k]["goodindex"] = 0
+            baseline[k]["goodgain"] = 0
+
+        for s in ydata:
+            S = ydata[s]
+            sgain = S["gain"]
+            if sgain == None:
+                continue
+
+            for mi in self.MIXINDEXES:
+                valuable = True
+                good = True
+                for k in mi:
+                    kbs = baseline[k]["baseline"]
+                    if kbs == None:
+                        valuable = False
+                        break
+                    if S[k] == None:
+                        valuable = False
+                        break
+                    if S[k] < kbs:
+                        good = False
+                        break
+                if not valuable:
+                    continue
+                if good:
+                    baseline[mi[0]]["goodindex"] += 1
+                    if S["gain"] > bbs:
+                        baseline[mi[0]]["goodgain"] += 1
+
+
+    def statoutput(self, f, main, outdir):
         for y in main:
             keys = main[y].keys()
             break
@@ -218,10 +286,51 @@ class RelatedIndex2(BaseTestUnit):
                 continue
             summ[k]["ratio"] = summ[k]["goodgain"] * 1.0 / summ[k]["goodindex"]
 
-        path = self.OUTPUTDIR2 + f
+        path = outdir + f
         json.dump(summ, open(path,'w'))
 
         pass
+
+    def output(self, mypath):
+        onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
+
+        for f in onlyfiles:
+            try:
+                stat = json.load(open(join(mypath, f)))
+            except Exception as e:
+                print "skip", f
+                print e
+                continue
+            if len(stat.keys()) < 1:
+                print "keys lengh is zero"
+                continue
+            self.outputrange(f, stat)
+
+        pass
+
+    def outputrange(self, f, stat):
+        ll = []
+        for k in stat:
+            ll.append((k, stat[k]["ratio"]))
+        sl = sorted(ll, key=lambda x: x[1], reverse = True)
+        print "range:", f
+        count = 0
+        for i in sl:
+            if i[1] < 0.001:
+                continue
+            if int(i[1]*10) == 5 or int(i[1]*10) == 4:
+#                continue
+                pass
+
+            print i
+            count += 1
+            if count > 30:
+#                break
+                pass
+
+
+
+
 
 
 

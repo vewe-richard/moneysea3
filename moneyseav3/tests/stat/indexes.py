@@ -43,6 +43,25 @@ class PriceIndex(BaseIndex):
     def name(self):
         return "price"
 
+class PriceDeltaIndex(BaseIndex):
+    def value(self):
+        hps0 = self._s.validhistorypricesshare(self._start, 15)
+        hps1 = self._s.validhistorypricesshare(self._end, 15)
+
+        if hps0 == None or hps1 == None:
+            return None
+
+        try:
+            share = (hps1[2]/hps1[0])/(hps0[2]/hps0[0])
+        except:
+            return None
+
+        gain = (share * hps1[0])/(hps0[0]) - 1
+        return gain
+
+    def name(self):
+        return "pricedelta"
+
 class MarketValueIndex(BaseIndex):
     def value(self):
         hps = self._s.validhistorypricesshare(self._start, 15)
@@ -131,6 +150,33 @@ class EQRatio(BaseIndex):
     def name(self):
         return "eqratio_" + self._tag
 
+class RangeAdding(BaseIndex):
+    def __init__(self, tag, yrange):
+        self._tag = tag
+        self._yrange = yrange
+        pass
+    def value(self):
+        fd = self._s.fd()
+        if self._yrange > 0:
+            start = self._start[0]
+            end = self._start[0] + self._yrange
+        else:
+            end = self._start[0]
+            start = self._start[0] + self._yrange
+
+        rstart = fd.yearreport(start)
+        rend = fd.yearreport(end)
+        try:
+            delta = (rend[self._tag] - rstart[self._tag]) / rstart[self._tag]
+        except:
+            return None
+        return delta
+
+
+    def name(self):
+        return "ra_" + self._tag + "_" + str(self._yrange)
+
+
 if __name__ == "__main__":
     from moneyseav3.globals import Globals
 
@@ -138,8 +184,9 @@ if __name__ == "__main__":
 
 #    I = MarketValueIndex() #PriceIndex() #GainIndex() # BaseIndex(), 
 #    I = PseYieldIndex((2018, 2))
-    I = EQRatio((2018, 2), "profit_adding")
-    I.setup((2017, 11, 20), (2018, 11, 20), s)
+#    I = EQRatio((2018, 2), "profit_adding")
+    I = RangeAdding("profit", -2)
+    I.setup((2015, 11, 20), (2018, 11, 20), s)
     print I.name()
     print I.value()
 '''

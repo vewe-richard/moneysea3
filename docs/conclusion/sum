@@ -1,0 +1,30 @@
+1. 三季度增长好的公司，年报增长大概率会好 (~ 90%)
+
+2. 年前一周买入股票，4月份到6月份陆续卖出，大概率会取得较大的收益
+   细节见buyselldates
+
+3. 参考以下财务指标（前30%）买入股票，有73%左右的概率在 
+   180天，360天，420天后都取得超过平均收益的结果
+'eqratio_profit_adding', 'report.profit_adding_2', 'eqratio_profit2_adding', 
+'ra_profit_-1', 'eqratio_sales_adding', 'ra_profit_-2', 'ra_profit2_-1', 'report.profit2_adding_2'
+
+richard@rv:~/sw/stock/moneysea3$ python moneyseav3 test stat index2 outputmix
+range: 180
+(u'eqratio_profit_adding', 0.732463295269168)
+(u'eqratio_profit2_adding', 0.7281368821292775)
+range: 720
+(u'eqratio_profit2_adding', 0.6503067484662577)
+(u'eqratio_profit_adding', 0.6397984886649875)
+ange: 420
+(u'eqratio_profit_adding', 0.7459546925566343)
+(u'eqratio_profit2_adding', 0.7424242424242424)
+
+
+4 进一步分析，
+4.1 增加过去多年平均增长对应的eqratio，支持自动选择不同的指标进行mix进而找到更高的收益率
+4.3 上述2和3结合，我们应该考虑90天后或120天后的收益在平均以上的
+4.2 完成按照财务指标选择股票的工作
+
+
+
+
