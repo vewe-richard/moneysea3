@@ -22,6 +22,7 @@ class RelatedIndex2(BaseTestUnit):
     OUTPUTDIR = "output/indexes/"
     OUTPUTDIR2 = "output/indexesstat/"
     OUTPUTDIR3 = "output/mixstat/"
+    OUTPUTDIR4 = "output/automixstat/"
 
     def cmd(self):
         return "index2"
@@ -62,6 +63,7 @@ class RelatedIndex2(BaseTestUnit):
             print "please specify the step"
             return
 
+        self._automix = None
         if args[0] == "gen":
             for days in range(self.RANGE_STEP, self.INVEST_RANGE + self.RANGE_STEP, self.RANGE_STEP):
                 self.everyrange(days)
@@ -75,7 +77,14 @@ class RelatedIndex2(BaseTestUnit):
             self.test()
         elif args[0] == "mixparse":
             self.parse(self.mixstatistic, self.OUTPUTDIR3)
+        elif args[0] == "automixparse":
+            self.parse(self.automixstatistic, self.OUTPUTDIR4)
+        elif args[0] == "outputautomix":
+            self.outputautomix()
         pass
+
+    def automixindexes(self):
+        return ( 'eqratio_profit_adding', 'report.profit_adding_2', 'eqratio_profit2_adding', 'ra_profit_-1', 'eqratio_sales_adding', 'ra_profit_-2', 'ra_profit2_-1', 'report.profit2_adding_2', 'ra_per_share_earnings_-1')
 
     def everyrange(self, days):
         print "range(%d)"%(days, )
@@ -142,6 +151,7 @@ class RelatedIndex2(BaseTestUnit):
 
         for f in onlyfiles:
 #            f = "1860"
+            print "parse file", f
             try:
                 ys = json.load(open(join(mypath, f)))
             except Exception as e:
@@ -154,8 +164,11 @@ class RelatedIndex2(BaseTestUnit):
 
             main = {}
             for y in ys:
+                print "\tparse baseline for ", y
                 main[y] = self.parseyear(y, ys[y])
+                print "\tcaculate the stat for ", y
                 statmethod(main[y], y, ys[y])
+            print "output for", f
             self.statoutput(f, main, outdir)
 #            break
 
@@ -278,8 +291,13 @@ class RelatedIndex2(BaseTestUnit):
             summ[k] = {"goodindex":0, "goodgain":0}
         for y in main:
             for k in main[y]:
-                summ[k]["goodindex"] += main[y][k]["goodindex"]
-                summ[k]["goodgain"] += main[y][k]["goodgain"]
+                if k == "gain":
+                    continue
+                try:
+                    summ[k]["goodindex"] += main[y][k]["goodindex"]
+                    summ[k]["goodgain"] += main[y][k]["goodgain"]
+                except:
+                    pass
         for k in summ:
             if summ[k]["goodindex"] == 0:
                 summ[k]["ratio"] = 0.00001
@@ -329,10 +347,128 @@ class RelatedIndex2(BaseTestUnit):
                 pass
 
 
+    def automixstatistic(self, baseline, year, ydata):
+        if self._automix == None:
+            print "generate auto mix indexes"
+            self._automix = self.genautomix(baseline)
+
+        bbs = baseline["gain"]["baseline"]
+        if bbs == None:
+            return None
+
+        for k in self._automix:
+            try:
+                baseline[k]["goodindex"] = 0
+                baseline[k]["goodgain"] = 0
+            except:
+                baseline[k] = {}
+                baseline[k] = {}
+                baseline[k]["goodindex"] = 0
+                baseline[k]["goodgain"] = 0
+
+#        print baseline
+#        print ""
+
+        for s in ydata:
+            S = ydata[s]
+            sgain = S["gain"]
+            if sgain == None:
+                continue
+
+            for mi in self._automix:
+                valuable = True
+                good = True
+                ll = self._automix[mi]
+
+                for k in ll:
+                    kbs = baseline[k]["baseline"]
+                    if kbs == None:
+                        valuable = False
+                        break
+                    if S[k] == None:
+                        valuable = False
+                        break
+                    if S[k] < kbs:
+                        good = False
+                        break
+                if not valuable:
+                    continue
+                if good:
+                    baseline[mi]["goodindex"] += 1
+                    if S["gain"] > bbs:
+                        baseline[mi]["goodgain"] += 1
 
 
+    def genautomix(self, baseline):
+        automix = {}
+        v = []
+        for k in self.automixindexes(): # baseline:
+            if k == "gain":
+                continue
+            v.append([k,])
+            automix[k] = [k,]
+
+        for k in self.automixindexes(): #baseline:
+            if k == "gain":
+                continue
+            nextv = []
+            for kk in self.automixindexes(): #baseline:
+                if kk == "gain":
+                    continue
+                for pkk in v:
+                    if kk in pkk:
+                        continue
+                    tmp = []
+                    tmp.extend(pkk)
+                    tmp.append(kk)
+                    if self.repeated(nextv, tmp):
+                        continue
+                    nextv.append(tmp)
+                    name = self.name(tmp)
+                    automix[name] = tmp
+            v = nextv
+        return automix
+
+    def repeated(self, parent, item):
+        for a in parent:
+            #if a is same as item
+            same = True
+            for i in item:
+                if i in a:
+                    continue
+                same = False
+                break
+            if same:
+                return True
+        return False
 
 
+    def name(self, ll):
+        strr = ""
+        for i in ll:
+            strr += i
+            strr += "-"
+        return strr
+
+
+    def outputautomix(self):
+        onlyfiles = [f for f in listdir(self.OUTPUTDIR4) if isfile(join(self.OUTPUTDIR4, f))]
+        
+        ll = []
+        for f in onlyfiles:
+            try:
+                stat = json.load(open(join(self.OUTPUTDIR4, f)))
+            except Exception as e:
+                print "skip", f
+                print e
+                continue
+            for item in stat:
+                ll.append((stat[item]["ratio"], f + "#" + item, stat[item]["goodgain"], stat[item]["goodindex"]))
+
+        sll = sorted(ll, key=lambda x: x[0])  
+        for i in sll:
+            print i
+        pass
 
 
 
