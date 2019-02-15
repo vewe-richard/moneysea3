@@ -72,6 +72,16 @@ class MarketValueIndex(BaseIndex):
     def name(self):
         return "marketvalue"
 
+class NegativeMarketValueIndex(BaseIndex):
+    def value(self):
+        hps = self._s.validhistorypricesshare(self._start, 15)
+        if hps == None:
+            return None
+        return (0 - hps[2])
+
+    def name(self):
+        return "negativemarketvalue"
+
 class ReportIndex(BaseIndex):
     def __init__(self, tag):
         self._tag = tag
@@ -79,7 +89,7 @@ class ReportIndex(BaseIndex):
     def value(self):
         fd = self._s.fd()
 
-        r = fd.report(self._reportseason[0], self._reportseason[1])
+        r = fd.report(self._start[0] + self._reportseason[0], self._reportseason[1])
         try:
             p = r[self._tag]
         except:
@@ -93,7 +103,7 @@ class PseYieldIndex(BaseIndex):
     def value(self):
         fd = self._s.fd()
 
-        r = fd.report(self._reportseason[0], self._reportseason[1])
+        r = fd.report(self._start[0] + self._reportseason[0], self._reportseason[1])
         try:
             p = r["per_share_earnings"]
         except:
@@ -117,7 +127,7 @@ class EQRatio(BaseIndex):
         pass
     def value(self):
         fd = self._s.fd()
-        r = fd.report(self._reportseason[0], self._reportseason[1])
+        r = fd.report(self._start[0] + self._reportseason[0], self._reportseason[1])
         try:
             a = r[self._tag] / 100
             e = r["per_share_earnings"]
@@ -164,8 +174,8 @@ class RangeAdding(BaseIndex):
             end = self._start[0]
             start = self._start[0] + self._yrange
 
-        rstart = fd.yearreport(start)
-        rend = fd.yearreport(end)
+        rstart = fd.report(start + self._reportseason[0], self._reportseason[1])
+        rend = fd.report(end + self._reportseason[0], self._reportseason[1])
         try:
             delta = (rend[self._tag] - rstart[self._tag]) / rstart[self._tag]
         except:
@@ -175,6 +185,111 @@ class RangeAdding(BaseIndex):
 
     def name(self):
         return "ra_" + self._tag + "_" + str(self._yrange)
+
+class EQRangeAdding(BaseIndex):
+    def __init__(self, tag, yrange):
+        self._tag = tag
+        self._yrange = yrange
+        pass
+    def value(self):
+        fd = self._s.fd()
+        if self._yrange > 0:
+            start = self._start[0]
+            end = self._start[0] + self._yrange
+        else:
+            end = self._start[0]
+            start = self._start[0] + self._yrange
+
+        rstart = fd.report(start + self._reportseason[0], self._reportseason[1])
+        rend = fd.report(end + self._reportseason[0], self._reportseason[1])
+        try:
+            delta = (rend[self._tag] - rstart[self._tag]) / rstart[self._tag]
+
+            a = delta / 100
+            e = rstart["per_share_earnings"]
+        except:
+            return None
+
+        if a == None:
+            return None
+        if e == None:
+            return None
+
+        if e < 0.0001:
+            return None
+        if abs(a + 1) < 0.000001:
+            a = -0.99999
+
+        hps = self._s.validhistorypricesshare(self._start, 15)
+        if hps == None:
+            return None
+
+
+        n = 5
+        p = 0.08
+        eq = (((p+1)/(a+1))**n) * p  #------ (2)
+        q = e/eq
+
+        dratio = (q - hps[0])/hps[0]
+        return dratio
+
+
+    def name(self):
+        return "eqra_" + self._tag + "_" + str(self._yrange)
+
+
+class EQPrevAdding(BaseIndex):
+    def __init__(self, tag, yrange):
+        self._tag = tag
+        self._yrange = yrange
+        pass
+    def value(self):
+        fd = self._s.fd()
+        if self._yrange > 0:
+            start = self._start[0]
+            end = self._start[0] + self._yrange
+        else:
+            end = self._start[0]
+            start = self._start[0] + self._yrange
+
+        rstart = fd.report(start + self._reportseason[0], self._reportseason[1])
+        rend = fd.report(start + self._reportseason[0] + 1, self._reportseason[1])
+        try:
+            delta = (rend[self._tag] - rstart[self._tag]) / rstart[self._tag]
+
+            a = delta / 100
+            e = rstart["per_share_earnings"]
+        except:
+            return None
+
+        if a == None:
+            return None
+        if e == None:
+            return None
+
+        if e < 0.0001:
+            return None
+        if abs(a + 1) < 0.000001:
+            a = -0.99999
+
+        hps = self._s.validhistorypricesshare(self._start, 15)
+        if hps == None:
+            return None
+
+
+        n = 5
+        p = 0.08
+        eq = (((p+1)/(a+1))**n) * p  #------ (2)
+        q = e/eq
+
+        dratio = (q - hps[0])/hps[0]
+        return dratio
+
+
+    def name(self):
+        return "eqpa_" + self._tag + "_" + str(self._yrange)
+
+
 
 
 if __name__ == "__main__":

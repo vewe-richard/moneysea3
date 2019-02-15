@@ -3,27 +3,47 @@
 2. 年前一周买入股票，4月份到6月份陆续卖出，大概率会取得较大的收益
    细节见buyselldates
 
-3. 参考以下财务指标（前30%）买入股票，有73%左右的概率在 
-   180天，360天，420天后都取得超过平均收益的结果
-'eqratio_profit_adding', 'report.profit_adding_2', 'eqratio_profit2_adding', 
-'ra_profit_-1', 'eqratio_sales_adding', 'ra_profit_-2', 'ra_profit2_-1', 'report.profit2_adding_2'
+3. 参考以下参数前30%,取混合
+python moneyseav3 test stat index2 gen
+python moneyseav3 test stat index2 parse
+python moneyseav3 test stat index2 output   #列出最相关的几个参数，10个以下，多了就算不过来
+python moneyseav3 test stat index2 automixparse
+python moneyseav3 test stat index2 outputautomix
 
-richard@rv:~/sw/stock/moneysea3$ python moneyseav3 test stat index2 outputmix
-range: 180
-(u'eqratio_profit_adding', 0.732463295269168)
-(u'eqratio_profit2_adding', 0.7281368821292775)
-range: 720
-(u'eqratio_profit2_adding', 0.6503067484662577)
-(u'eqratio_profit_adding', 0.6397984886649875)
-ange: 420
-(u'eqratio_profit_adding', 0.7459546925566343)
-(u'eqratio_profit2_adding', 0.7424242424242424)
+START_TIME = (0, 2, 22)
+(0.5659574468085107, u'60#eqra_profit2_-1-negativemarketvalue-', 266, 470)
+(0.5828025477707006, u'120#eqra_profit2_-1-eqpa_profit2_-3-eqpa_profit2_-2-', 366, 628)
+(0.5945945945945946, u'180#eqra_profit2_-1-eqpa_profit2_-3-eqpa_profit2_-2-', 374, 629)
+(0.6331738437001595, u'240#eqra_profit2_-1-eqpa_profit2_-3-eqra_profit2_-2-', 397, 627)
+(0.7564935064935064, u'300#eqra_profit2_-1-eqpa_profit2_-3-eqra_profit2_-3-eqra_profit2_-2-', 233, 308)
+(0.8032786885245902, u'360#eqra_profit2_-1-eqpa_profit2_-3-eqra_profit2_-3-eqra_profit2_-2-', 245, 305)
+(0.7612903225806451, u'420#eqra_profit2_-1-eqpa_profit2_-3-eqra_profit2_-3-eqra_profit2_-2-', 236, 310)
+(0.7817589576547231, u'480#eqra_profit2_-1-eqpa_profit2_-3-eqra_profit2_-3-eqra_profit2_-2-', 240, 307)
+(0.7611464968152867, u'540#eqra_profit2_-1-eqpa_profit2_-3-eqra_profit2_-3-eqra_profit2_-2-', 239, 314)
+(0.7270588235294118, u'780#eqra_profit2_-1                                -eqra_profit2_-2-', 309, 425)
+(0.7523364485981309, u'900#eqra_profit2_-1                                -eqra_profit2_-2-', 322, 428)
+(0.7767295597484277, u'600#eqra_profit2_-1-eqpa_profit2_-3-eqra_profit2_-3-eqra_profit2_-2-', 247, 318)
+(0.7633410672853829, u'960#eqra_profit2_-1                                -eqra_profit2_-2-', 329, 431)
+
+select this one:
+(0.8032786885245902, u'360#eqra_profit2_-1-eqpa_profit2_-3-eqra_profit2_-3-eqra_profit2_-2-', 245, 305)
 
 
-4 进一步分析，
-4.1 增加过去多年平均增长对应的eqratio，支持自动选择不同的指标进行mix进而找到更高的收益率
-4.3 上述2和3结合，我们应该考虑90天后或120天后的收益在平均以上的
-4.2 完成按照财务指标选择股票的工作
+4 进一步
+
+4.1 参考3所得 2.18 ~ 2.22的最佳买入参数组合, 选出股票集合 A
+    手动选择股票，选择年报预报正常(未暴雷)的，选择前段时间上升又摔下并且持续了一段时间波动的，等等
+
+4.2 等年报出来后，重新3的运算，reportseason设为 (-1, 3)
+    这个时候应该产生更多的样本, 更令人信服的统计 --- 因为 (-1, 2)对很多股票profit2是缺乏的
+    然后选出股票集合B
+    参考集合B/A变更股票
+    
+如此循环下去
+
+
+4.3 持有过程中有时间，可以分析算法:如果对集合中的增长了一定比例的股票抛出，来回倒腾，会有什么结果？
+    或者分析，一只股票，下滑多少，经过多少时间又回升？    
 
 
 

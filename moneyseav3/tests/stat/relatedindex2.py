@@ -9,14 +9,14 @@ import sys
 
 
 class RelatedIndex2(BaseTestUnit):
-    START_TIME = (0, 1, 25)
+    START_TIME = (0, 2, 22)
     HISTORY_DATA_INVEST_START = (2000, 1, 1)
     HISTORY_DATA_INVEST_END = (2018, 11, 30)
     INDEX_GOOD_RATIO = (1.0 / 3)
     GAIN_GOOD_RATIO = (1.0 / 2)
 
     RANGE_STEP = (2*30)  #two month
-    INVEST_RANGE = (5*365) #5 years
+    INVEST_RANGE = (3*365) #5 years
     DEBUG = False
 
     OUTPUTDIR = "output/indexes/"
@@ -31,10 +31,12 @@ class RelatedIndex2(BaseTestUnit):
         return "parsing related indexes with gain"
 
     def run(self, args, opts):
-        normal_idxs = (GainIndex(), PriceIndex(), MarketValueIndex(), PseYieldIndex(), PriceDeltaIndex())
+        normal_idxs = (GainIndex(), PriceIndex(), MarketValueIndex(), NegativeMarketValueIndex(), PseYieldIndex(), PriceDeltaIndex())
         report_idxs = self.report_idxs()
         eqratio_idxs = self.eqratio_idxs()
         rangeadding_idxs = self.rangeadding_idxs()
+        eqra_idxs = self.eqra_idxs()
+        eqpa_idxs = self.eqpa_idxs()
 
         if self.DEBUG:
             self.HISTORY_DATA_INVEST_START = (2017, 1, 1)
@@ -48,6 +50,7 @@ class RelatedIndex2(BaseTestUnit):
             aa.extend(normal_idxs)
 #            aa.extend(report_idxs)
 #            aa.extend(eqratio_idxs)
+            aa.extend(eqra_idxs)
             self._indexes = aa
         else:
             self._ss = Globals.get_instance().stocks()
@@ -56,6 +59,8 @@ class RelatedIndex2(BaseTestUnit):
             aa.extend(report_idxs)
             aa.extend(eqratio_idxs)
             aa.extend(rangeadding_idxs)
+            aa.extend(eqra_idxs)
+            aa.extend(eqpa_idxs)
             self._indexes = aa
 
 
@@ -70,7 +75,9 @@ class RelatedIndex2(BaseTestUnit):
         elif args[0] == "parse":
             self.parse(self.statistic, self.OUTPUTDIR2)
         elif args[0] == "output":
+            self._relatedll = []
             self.output("output/indexesstat/")
+            print self._relatedll
         elif args[0] == "outputmix":
             self.output("output/mixstat/")
         elif args[0] == "test":
@@ -84,7 +91,10 @@ class RelatedIndex2(BaseTestUnit):
         pass
 
     def automixindexes(self):
-        return ( 'eqratio_profit_adding', 'report.profit_adding_2', 'eqratio_profit2_adding', 'ra_profit_-1', 'eqratio_sales_adding', 'ra_profit_-2', 'ra_profit2_-1', 'report.profit2_adding_2', 'ra_per_share_earnings_-1')
+#        return [u'eqratio_profit_adding', u'report.profit_adding_2', u'eqratio_profit2_adding', u'ra_profit_-1', u'ra_per_share_earnings_-1', u'ra_profit_-2', u'ra_profit2_-1', u'eqratio_sales_adding', u'report.profit2_adding_2']
+#        return ( 'eqratio_profit_adding', 'report.profit_adding_2', 'eqratio_profit2_adding', 'ra_profit_-1', 'eqratio_sales_adding', 'ra_profit_-2', 'ra_profit2_-1', 'report.profit2_adding_2', 'ra_per_share_earnings_-1')
+#        return [u'eqra_profit2_-2', u'negativemarketvalue', u'eqra_profit2_-5', u'ra_profit2_-5', u'eqra_profit2_-6', u'eqratio_profit2_adding', u'eqra_sales_-6', u'eqra_per_share_earnings_-6', u'eqra_profit_-6', u'eqra_profit2_-3', u'eqra_profit2_-1', u'eqra_profit2_-4']
+        return [u'eqra_profit2_-2', u'eqpa_profit2_-2', u'negativemarketvalue', u'eqra_profit2_-3', u'eqpa_profit2_-3', u'eqra_profit2_-1']
 
     def everyrange(self, days):
         print "range(%d)"%(days, )
@@ -106,7 +116,7 @@ class RelatedIndex2(BaseTestUnit):
             for s in self._ss:
                 ids = {}
                 for idx in self._indexes:
-                    idx.setup((sdt.year, sdt.month, sdt.day), (edt.year, edt.month, edt.day), self._ss[s], (sdt.year, 2))
+                    idx.setup((sdt.year, sdt.month, sdt.day), (edt.year, edt.month, edt.day), self._ss[s], (- 1, 2))
                     ids[idx.name()] = idx.value()
                 ssi[s] = ids
 
@@ -144,6 +154,25 @@ class RelatedIndex2(BaseTestUnit):
                 ra = RangeAdding(tag, rg)
                 ll.append(ra)
         return ll
+
+    def eqra_idxs(self):
+        ll = []
+        for rg in range(-6, 0):
+            if rg == 0:
+                continue
+            for tag in ("profit", "profit2", "sales", "per_share_earnings"):
+                ra = EQRangeAdding(tag, rg)
+                ll.append(ra)
+        return ll
+
+    def eqpa_idxs(self):
+        ll = []
+        for rg in range(-6, -1):
+            for tag in ("profit", "profit2", "sales", "per_share_earnings"):
+                ra = EQPrevAdding(tag, rg)
+                ll.append(ra)
+        return ll
+
 
     def parse(self, statmethod, outdir):
         mypath = "output/indexes/"
@@ -329,16 +358,26 @@ class RelatedIndex2(BaseTestUnit):
     def outputrange(self, f, stat):
         ll = []
         for k in stat:
-            ll.append((k, stat[k]["ratio"]))
+            ll.append((k, stat[k]["ratio"], stat[k]["goodgain"], stat[k]["goodindex"]))
         sl = sorted(ll, key=lambda x: x[1], reverse = True)
         print "range:", f
         count = 0
         for i in sl:
             if i[1] < 0.001:
                 continue
-            if int(i[1]*10) == 5 or int(i[1]*10) == 4:
-#                continue
-                pass
+            #------------------------------
+            if i[3] < 500:
+                continue
+
+            if int(i[1]*100) < 60:
+                continue
+            else:
+                print i
+            if i[0] in self._relatedll:
+                continue
+            self._relatedll.append(i[0])
+            continue
+            #+++++++++++++++++++++++++++++++
 
             print i
             count += 1
@@ -451,11 +490,13 @@ class RelatedIndex2(BaseTestUnit):
         return strr
 
 
-    def outputautomix(self):
+    def outputautomix1(self):
         onlyfiles = [f for f in listdir(self.OUTPUTDIR4) if isfile(join(self.OUTPUTDIR4, f))]
         
         ll = []
         for f in onlyfiles:
+            if False: #not int(f) == 60:
+                continue
             try:
                 stat = json.load(open(join(self.OUTPUTDIR4, f)))
             except Exception as e:
@@ -467,8 +508,32 @@ class RelatedIndex2(BaseTestUnit):
 
         sll = sorted(ll, key=lambda x: x[0])  
         for i in sll:
+            if i[3] < 300:
+                continue
             print i
         pass
+
+
+    def outputautomix(self):
+        onlyfiles = [f for f in listdir(self.OUTPUTDIR4) if isfile(join(self.OUTPUTDIR4, f))]
+        
+        for f in onlyfiles:
+            try:
+                stat = json.load(open(join(self.OUTPUTDIR4, f)))
+            except Exception as e:
+                print "skip", f
+                print e
+                continue
+
+            ll = []
+            for item in stat:
+                ll.append((stat[item]["ratio"], f + "#" + item, stat[item]["goodgain"], stat[item]["goodindex"]))
+            sll = sorted(ll, key=lambda x: x[0], reverse = True)  
+            for i in sll:
+                if i[3] < 300:
+                    continue
+                print i
+                break
 
 
 
