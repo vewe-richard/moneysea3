@@ -131,7 +131,7 @@ class EQRatio(BaseIndex):
         try:
             a = r[self._tag] / 100
             e = r["per_share_earnings"]
-        except:
+        except Exception as e:
             return None
         if a == None:
             return None
@@ -187,9 +187,10 @@ class RangeAdding(BaseIndex):
         return "ra_" + self._tag + "_" + str(self._yrange)
 
 class EQRangeAdding(BaseIndex):
-    def __init__(self, tag, yrange):
+    def __init__(self, tag, yrange, refpricedate = None):
         self._tag = tag
         self._yrange = yrange
+        self._refpricedate = refpricedate
         pass
     def value(self):
         fd = self._s.fd()
@@ -205,7 +206,7 @@ class EQRangeAdding(BaseIndex):
         try:
             delta = (rend[self._tag] - rstart[self._tag]) / rstart[self._tag]
 
-            a = delta / 100
+            a = delta
             e = rstart["per_share_earnings"]
         except:
             return None
@@ -220,9 +221,15 @@ class EQRangeAdding(BaseIndex):
         if abs(a + 1) < 0.000001:
             a = -0.99999
 
-        hps = self._s.validhistorypricesshare(self._start, 15)
-        if hps == None:
-            return None
+        if self._refpricedate == None:
+            hps = self._s.validhistorypricesshare(self._start, 15)
+            if hps == None:
+                return None
+        else:
+            p = self._s.price(self._refpricedate)
+            if p == None:
+                return None
+            hps = (p, 0)
 
 
         n = 5
@@ -231,6 +238,14 @@ class EQRangeAdding(BaseIndex):
         q = e/eq
 
         dratio = (q - hps[0])/hps[0]
+
+        '''
+        print "stock:", self._s.id()
+        print "eq:", eq
+        print "adding:", a
+        print "price:", hps[0]
+        print "earning:", e
+        '''
         return dratio
 
 
@@ -239,9 +254,10 @@ class EQRangeAdding(BaseIndex):
 
 
 class EQPrevAdding(BaseIndex):
-    def __init__(self, tag, yrange):
+    def __init__(self, tag, yrange, refpricedate = None):
         self._tag = tag
         self._yrange = yrange
+        self._refpricedate = refpricedate
         pass
     def value(self):
         fd = self._s.fd()
@@ -257,7 +273,7 @@ class EQPrevAdding(BaseIndex):
         try:
             delta = (rend[self._tag] - rstart[self._tag]) / rstart[self._tag]
 
-            a = delta / 100
+            a = delta
             e = rstart["per_share_earnings"]
         except:
             return None
@@ -272,10 +288,15 @@ class EQPrevAdding(BaseIndex):
         if abs(a + 1) < 0.000001:
             a = -0.99999
 
-        hps = self._s.validhistorypricesshare(self._start, 15)
-        if hps == None:
-            return None
-
+        if self._refpricedate == None:
+            hps = self._s.validhistorypricesshare(self._start, 15)
+            if hps == None:
+                return None
+        else:
+            p = self._s.price(self._refpricedate)
+            if p == None:
+                return None
+            hps = (p, 0)
 
         n = 5
         p = 0.08
@@ -283,6 +304,7 @@ class EQPrevAdding(BaseIndex):
         q = e/eq
 
         dratio = (q - hps[0])/hps[0]
+
         return dratio
 
 
@@ -299,12 +321,15 @@ if __name__ == "__main__":
 
 #    I = MarketValueIndex() #PriceIndex() #GainIndex() # BaseIndex(), 
 #    I = PseYieldIndex((2018, 2))
-#    I = EQRatio((2018, 2), "profit_adding")
+    I = EQRatio("profit_adding")
+    I.setup((2019, 2, 22), None, s, (-1, 2))
+    print I.value()
+
+'''
     I = RangeAdding("profit", -2)
     I.setup((2015, 11, 20), (2018, 11, 20), s)
     print I.name()
     print I.value()
-'''
     reporttags = ("per_share_earnings", "per_share_asset", "per_share_cash2", "sales", 
             "msales_profit", "sales_profit", "invest_gain", "other_gain", 
             "total_profit", "profit", "profit2", "total_cash", "cach_adding", 

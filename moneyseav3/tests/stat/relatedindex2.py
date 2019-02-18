@@ -94,7 +94,8 @@ class RelatedIndex2(BaseTestUnit):
 #        return [u'eqratio_profit_adding', u'report.profit_adding_2', u'eqratio_profit2_adding', u'ra_profit_-1', u'ra_per_share_earnings_-1', u'ra_profit_-2', u'ra_profit2_-1', u'eqratio_sales_adding', u'report.profit2_adding_2']
 #        return ( 'eqratio_profit_adding', 'report.profit_adding_2', 'eqratio_profit2_adding', 'ra_profit_-1', 'eqratio_sales_adding', 'ra_profit_-2', 'ra_profit2_-1', 'report.profit2_adding_2', 'ra_per_share_earnings_-1')
 #        return [u'eqra_profit2_-2', u'negativemarketvalue', u'eqra_profit2_-5', u'ra_profit2_-5', u'eqra_profit2_-6', u'eqratio_profit2_adding', u'eqra_sales_-6', u'eqra_per_share_earnings_-6', u'eqra_profit_-6', u'eqra_profit2_-3', u'eqra_profit2_-1', u'eqra_profit2_-4']
-        return [u'eqra_profit2_-2', u'eqpa_profit2_-2', u'negativemarketvalue', u'eqra_profit2_-3', u'eqpa_profit2_-3', u'eqra_profit2_-1']
+#        return [u'eqra_profit2_-2', u'eqpa_profit2_-2', u'negativemarketvalue', u'eqra_profit2_-3', u'eqpa_profit2_-3', u'eqra_profit2_-1']
+        return [u'eqra_profit2_-2', u'eqpa_profit2_-2', u'negativemarketvalue', u'eqpa_profit2_-3', u'eqra_profit2_-3']
 
     def everyrange(self, days):
         print "range(%d)"%(days, )
